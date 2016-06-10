@@ -183,7 +183,7 @@ class QrPayment {
       header("Content-type: image/png");
     }
     $qr = new QrCode();
-    return $qr->setText($this->getQRString());
+    return $qr->setText($this->getQrString());
   }
 
 }
