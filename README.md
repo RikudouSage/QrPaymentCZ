@@ -21,7 +21,7 @@ Then you have two options: take the generated QR string by calling `$qr->getQrSt
 
 ## List of public methods
 
-- `__construct(int, int, [array])` - takes three parameters, first is the account number, second is the bank code and third parameter is options
+- `__construct(int|string, int|string, [array])` - takes three parameters, first is the account number, second is the bank code and third parameter is options
 - `setOptions(array)` - does the same as the third parameter in `__construct()` - actually the construct calls this function to assign properties. This function traverses array and checks whether property with given array key exists, if so, it assigns it. You can also assign these properties directly by calling e.g. `$this->amount = 500`.
     - list of properties (if bank does not understand the property, it ignores it):
         - `private $account` - is set in construct, it's the account number

@@ -39,8 +39,8 @@ class QrPayment {
    * Sets account and bank. Allows to specify options in array in format:
    * property_name => value
    *
-   * @param int $account
-   * @param int $bank
+   * @param int|string $account
+   * @param int|string $bank
    * @param array $options
    */
   public function __construct($account, $bank, $options = []) {
