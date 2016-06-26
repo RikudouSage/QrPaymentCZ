@@ -1,0 +1,26 @@
+{
+  "name": "rikudou/czqrpayment",
+  "type": "library",
+  "description": "QR payment library for Czech accounts",
+  "homepage": "https://github.com/RikudouSage/QrPaymentCZ",
+  "keywords": ["qr", "payment"],
+  "license": "WTFPL",
+  "authors": [
+    {
+      "name": "Dominik Chrástecký",
+      "email": "dominik@chrastecky.cz"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.0"
+  },
+  "autoload": {
+    "classmap": [
+      "QrException.class.php",
+      "QrPayment.class.php"
+    ]
+  },
+  "suggest": {
+    "endroid/qrcode": "^1.6"
+  }
+}
