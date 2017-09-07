@@ -2,6 +2,7 @@
 
 namespace rikudou\CzQrPayment;
 
+use function class_exists;
 use Endroid\QrCode\QrCode;
 
 /**
@@ -24,7 +25,7 @@ class QrPayment {
   /** @var string $currency */
   public $currency = "CZK";
   /** @var string $comment */
-  public $comment = "QR Payment";
+  public $comment = "";
   /** @var int $repeat */
   public $repeat = 7;
   /** @var  int */
@@ -33,6 +34,8 @@ class QrPayment {
   public $due_date;
   /** @var float $ammount */
   public $amount;
+  /** @var string $country */
+  public $country = 'CZ';
 
   /**
    * QrPayment constructor.
@@ -43,10 +46,11 @@ class QrPayment {
    * @param int|string $bank
    * @param array $options
    */
-  public function __construct($account, $bank, $options = []) {
+  public function __construct($account, $bank, array $options = null) {
     $this->account = $account;
     $this->bank = $bank;
-    if($options) {
+
+    if ($options) {
       $this->setOptions($options);
     }
   }
@@ -60,12 +64,13 @@ class QrPayment {
    * @param array $options
    * @throws \rikudou\CzQrPayment\QrException
    */
-  public function setOptions($options) {
+  public function setOptions(array $options) {
     foreach ($options as $key => $value) {
-      if(property_exists($this, $key)) {
+      if (property_exists($this, $key)) {
         $this->$key = $value;
       }
     }
+
     $this->checkProperties();
   }
 
@@ -74,31 +79,19 @@ class QrPayment {
    * @return string
    */
   public function accToIBAN() {
-    $bank = $this->bank;
-    $account = $this->account;
-    $part = [];
-    $replacements = [];
-    $replacements[1] = [];
-    $replacements[2] = [];
+    $this->country = strtoupper($this->country);
 
-    $base = sprintf("CZ00{$bank}%016d", $account);
-    $part[1] = substr($base, 0, 4);
-    $part[2] = substr($base, 4);
-    $reversed = $part[2] . $part[1];
-    for ($i = 10; $i <= 35; $i++) {
-      $replacements[1][] = $i;
+    $part1 = ord($this->country[0]) - ord('A') + 10;
+    $part2 = ord($this->country[1]) - ord('A') + 10;
+
+    $numeric = sprintf("%04d%016d%d%d00", $this->bank, $this->account, $part1, $part2);
+
+    $mod = "";
+    foreach (str_split($numeric) as $n) {
+      $mod = ($mod . $n) % 97;
     }
-    for ($j = "A"; $j <= "Z"; $j++) {
-      $replacements[2][] = $j;
-      if($j == "Z") {
-        break;
-      }
-    }
-    $numeric = str_replace($replacements[2], $replacements[1], $reversed);
-    $mod = bcmod(strval($numeric), 97);
-    $control = 98 - $mod;
-    $final = sprintf("CZ$control{$bank}%016d", $account);
-    return $final;
+
+    return sprintf("%.2s%02d%04d%016d", $this->country, 98 - $mod, $this->bank, $this->account);
   }
 
   /**
@@ -111,51 +104,54 @@ class QrPayment {
    */
   public function getQrString() {
     $this->checkProperties();
+
     $qr = "SPD*1.0*";
-    $iban = $this->accToIBAN();
-    $qr .= "ACC:$iban*";
-    $qr .= "AM:$this->amount*";
-    $qr .= "CC:$this->currency*";
-    $qr .= "MSG:$this->comment*";
-    $qr .= "X-PER:$this->repeat*";
-    if($this->internal_id) {
-      $qr .= "X-ID:$this->internal_id*";
+    $qr .= sprintf("ACC:%s*", $this->accToIBAN());
+    $qr .= sprintf("AM:%.2f*", $this->amount);
+    $qr .= sprintf("CC:%s*", strtoupper($this->currency));
+
+    if ($this->repeat) {
+      $qr .= sprintf("X-PER:%d*", $this->repeat);
+    }
+    if ($this->comment) {
+      $qr .= sprintf("MSG:%.60s*", $this->comment);
+    }
+    if ($this->internal_id) {
+      $qr .= sprintf("X-ID:%d*", $this->internal_id);
     }
     if ($this->variable_symbol) {
-      $qr .= "X-VS:$this->variable_symbol*";
+      $qr .= sprintf("X-VS:%d*", $this->variable_symbol);
     }
     if ($this->specific_symbol) {
-      $qr .= "X-SS:$this->specific_symbol*";
+      $qr .= sprintf("X-SS:%d*", $this->specific_symbol);
     }
     if ($this->constant_symbol) {
-      $qr .= "X-KS:$this->constant_symbol*";
+      $qr .= sprintf("X-KS:%d*", $this->constant_symbol);
     }
-    if($this->hasDueDate()) {
-      $qr .= "DT:".date("Ymd",strtotime($this->due_date))."*";
-    }
-
-    if(substr($qr, -1) == "*") {
-      $qr = substr($qr,0,-1);
+    if (($dueDate = $this->getDueDate())) {
+      $qr .= sprintf("DT:%s*", $dueDate->format('Ymd'));
     }
 
-    return $qr;
+    return substr($qr,0,-1);
   }
 
   /**
    * Checks whether the due date is set.
    * Throws exception if the date format cannot be parsed by strtotime() func
-   * 
+   *
    * @return bool
    * @throws \rikudou\CzQrPayment\QrException
    */
-  private function hasDueDate() {
-    if(!$this->due_date) {
-      return false;
+  private function getDueDate() {
+    if (!$this->due_date) {
+      return null;
     }
-    if(!strtotime($this->due_date)) {
-      throw new QrException("Error: Due date value ($this->due_date) cannot be transformed, you must ensure that the due date value is acceptable by strtotime()",QrException::ERR_DATE);
+
+    if (!$this->due_date instanceof \DateTime && !@strtotime($this->due_date)) {
+      throw new QrException("Error: Due date value ($this->due_date) cannot be transformed, you must ensure that the due date value is acceptable by strtotime()", QrException::ERR_DATE);
     }
-    return true;
+
+    return $this->due_date instanceof \DateTime ? $this->due_date : new \DateTime($this->due_date);
   }
 
   /**
@@ -165,7 +161,7 @@ class QrPayment {
    */
   private function checkProperties() {
     foreach (get_object_vars($this) as $property => $value) {
-      if(strpos($value,"*") !== false) {
+      if (strpos($value,"*") !== false) {
         throw new QrException("Error: properties cannot contain asterisk (*). Property $property contains it.", QrException::ERR_ASTERISK);
       }
     }
@@ -179,10 +175,15 @@ class QrPayment {
    * @return \Endroid\QrCode\QrCode
    */
   public function getQr($set_png_header = false) {
-    if($set_png_header) {
+    if (!class_exists("Endroid\QrCode\QrCode")) {
+      throw new QrException("Error: library Endroid\QrCode is not loaded.", QrException::ERR_MISSING_LIBRARY);
+    }
+
+    if ($set_png_header) {
       header("Content-type: image/png");
     }
-    $qr = new QrCode();
+
+    $qr = new QrCode;
     return $qr->setText($this->getQrString());
   }
 
