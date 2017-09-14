@@ -26,6 +26,7 @@ Then you have two options: take the generated QR string by calling `$qr->getQrSt
     - list of properties (if bank does not understand the property, it ignores it):
         - `private $account` - is set in construct, it's the account number
         - `private $bank` - is set in construct, it's the bank code
+        - `private $country` - the variable symbol for bank country
         - `public $variable_symbol` - the variable symbol for payment
         - `public $specific_symbol` - the specific symbol for payment
         - `public $constant_symbol` - the constant symbol for payment
@@ -40,5 +41,4 @@ Then you have two options: take the generated QR string by calling `$qr->getQrSt
 - `getQr([bool])` - returns instance of `Endroid\QrCode\QrCode` object and sets the QR payment string as text.
 
 ## Dependencies
-1. `bcmath` - math library to work with big numbers, you must have php compiled with support for it (http://php.net/manual/en/book.bc.php)
-2. `endroid/qrcode` - php library for generating qr codes, you can get it from composer or https://github.com/endroid/QrCode
+1. `endroid/qrcode` - php library for generating qr codes, you can get it from composer or https://github.com/endroid/QrCode
