@@ -7,7 +7,8 @@ All methods are documented in source code.
 
 Via composer: `composer require rikudou/czqrpayment`
 
-Manually: clone the repository and include the `QrException.php` and `QrPayment.php` in your project.
+Manually: clone the repository and include the `QrPaymentException.php`,
+`QrPaymentOptions.php` and `QrPayment.php` in your project.
 
 ## Usage
 
