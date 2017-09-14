@@ -3,7 +3,10 @@
   "type": "library",
   "description": "QR payment library for Czech accounts",
   "homepage": "https://github.com/RikudouSage/QrPaymentCZ",
-  "keywords": ["qr", "payment"],
+  "keywords": [
+    "qr",
+    "payment"
+  ],
   "license": "WTFPL",
   "authors": [
     {
@@ -16,8 +19,9 @@
   },
   "autoload": {
     "classmap": [
-      "QrException.class.php",
-      "QrPayment.class.php"
+      "QrPaymentException.php",
+      "QrPaymentOptions.php",
+      "QrPayment.php"
     ]
   },
   "suggest": {
