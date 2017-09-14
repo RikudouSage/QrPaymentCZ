@@ -3,6 +3,13 @@
 A simple library to generate QR payment code for Czech Republic.
 All methods are documented in source code.
 
+## Installation
+
+Via composer: `composer require rikudou/czqrpayment`
+
+Manually: clone the repository and include the `QrException.class.php`
+and `QrPayment.class.php` in your project.
+
 ## Usage
 
 ```php
