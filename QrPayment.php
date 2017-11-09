@@ -12,9 +12,9 @@ use Endroid\QrCode\QrCode;
 class QrPayment {
 
   /** @var  int|string $account */
-  private $account;
+  protected $account;
   /** @var  int $bank */
-  private $bank;
+  protected $bank;
 
   /** @var int $variableSymbol */
   public $variableSymbol;
@@ -37,7 +37,7 @@ class QrPayment {
   /** @var string $country */
   public $country = 'CZ';
   /** @var string|null $iban */
-  private $iban = null;
+  protected $iban = null;
 
   /**
    * QrPayment constructor.
@@ -152,7 +152,7 @@ class QrPayment {
    * @return \DateTime|null
    * @throws \rikudou\CzQrPayment\QrPaymentException
    */
-  private function getDueDate() {
+  protected function getDueDate() {
     if (!$this->dueDate) {
       return null;
     }
@@ -169,7 +169,7 @@ class QrPayment {
    * is found
    * @throws \rikudou\CzQrPayment\QrPaymentException
    */
-  private function checkProperties() {
+  protected function checkProperties() {
     foreach (get_object_vars($this) as $property => $value) {
       if (strpos($value,"*") !== false) {
         throw new QrPaymentException("Error: properties cannot contain asterisk (*). Property $property contains it.", QrPaymentException::ERR_ASTERISK);
