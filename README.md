@@ -3,6 +3,8 @@
 A simple library to generate QR payment code for Czech Republic.
 All methods are documented in source code.
 
+**[See also QR code payment generator for Slovak accounts](https://github.com/RikudouSage/QrPaymentSK)**.
+
 ## Installation
 
 Via composer: `composer require rikudou/czqrpayment`
