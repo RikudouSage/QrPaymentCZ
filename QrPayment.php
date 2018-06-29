@@ -2,7 +2,6 @@
 
 namespace rikudou\CzQrPayment;
 
-use function class_exists;
 use Endroid\QrCode\QrCode;
 
 /**
@@ -47,6 +46,8 @@ class QrPayment {
    * @param int|string $account
    * @param int|string $bank
    * @param array $options
+   *
+   * @throws \rikudou\CzQrPayment\QrPaymentException
    */
   public function __construct($account, $bank, array $options = null) {
     $this->account = $account;
@@ -187,20 +188,21 @@ class QrPayment {
    */
   public function getQrImage($setPngHeader = false) {
     if (!class_exists("Endroid\QrCode\QrCode")) {
-      throw new QrPaymentException("Error: library Endroid\QrCode is not loaded.", QrPaymentException::ERR_MISSING_LIBRARY);
+      throw new QrPaymentException("Error: library endroid/qr-code is not loaded.", QrPaymentException::ERR_MISSING_LIBRARY);
     }
 
     if ($setPngHeader) {
       header("Content-type: image/png");
     }
 
-    $qr = new QrCode;
-    return $qr->setText($this->getQrString());
+    return new QrCode($this->getQrString());
   }
 
   /**
    * @param string $iban
+   *
    * @return static
+   * @throws \rikudou\CzQrPayment\QrPaymentException
    */
   public static function fromIBAN($iban) {
     $instance = new static(0,0);

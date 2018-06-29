@@ -25,6 +25,6 @@
     ]
   },
   "suggest": {
-    "endroid/qrcode": "^1.6"
+    "endroid/qr-code": "^3.2"
   }
 }
