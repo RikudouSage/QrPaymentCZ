@@ -247,7 +247,7 @@ $payment = QrPayment::fromIBAN("CZ5530300000001325090010")->setOptions([
 ]);
 
 $payment->getQrImage(true) // sets the content-type and renders
-    ->render();
+    ->writeString();
 
 ```
 
