@@ -172,7 +172,7 @@ class QrPayment {
    */
   protected function checkProperties() {
     foreach (get_object_vars($this) as $property => $value) {
-      if (strpos($value,"*") !== false) {
+      if ($property !== "dueDate" && strpos($value,"*") !== false) {
         throw new QrPaymentException("Error: properties cannot contain asterisk (*). Property $property contains it.", QrPaymentException::ERR_ASTERISK);
       }
     }
