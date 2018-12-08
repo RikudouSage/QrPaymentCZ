@@ -136,7 +136,7 @@ class QrPayment {
       $qr .= sprintf("MSG:%.60s*", $this->comment);
     }
     if ($this->internalId) {
-      $qr .= sprintf("X-ID:%d*", $this->internalId);
+      $qr .= sprintf("X-ID:%s*", $this->internalId);
     }
     if ($this->variableSymbol) {
       $qr .= sprintf("X-VS:%d*", $this->variableSymbol);
