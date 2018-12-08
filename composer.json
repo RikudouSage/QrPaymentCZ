@@ -18,11 +18,9 @@
     "php": ">=5.3.0"
   },
   "autoload": {
-    "classmap": [
-      "QrPaymentException.php",
-      "QrPaymentOptions.php",
-      "QrPayment.php"
-    ]
+    "psr-4": {
+      "rikudou\\CzQrPayment\\": "src/"
+    }
   },
   "suggest": {
     "endroid/qr-code": "^3.2"
