@@ -102,7 +102,7 @@ class QrPayment {
       $accountNumber = $accountParts[1];
     }
 
-    $numeric = sprintf('%04d%06d%010d%d00', $this->bank, $accountPrefix, $accountNumber, $part1, $part2);
+    $numeric = sprintf('%04d%06d%010d%d%d00', $this->bank, $accountPrefix, $accountNumber, $part1, $part2);
 
     $mod = "";
     foreach (str_split($numeric) as $n) {
