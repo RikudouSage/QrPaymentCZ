@@ -4,6 +4,8 @@ namespace rikudou\CzQrPayment\Tests;
 
 use PHPUnit\Framework\TestCase;
 use rikudou\CzQrPayment\QrPayment;
+use rikudou\CzQrPayment\QrPaymentException;
+use rikudou\CzQrPayment\QrPaymentOptions;
 
 class PaymentTest extends TestCase
 {
@@ -80,6 +82,43 @@ class PaymentTest extends TestCase
     {
         $payment = QrPayment::fromIBAN("CZ5530300000001325090010");
         $this->assertEquals("SPD*1.0*ACC:CZ5530300000001325090010*AM:0.00*CC:CZK*X-PER:7", $payment->getQrString());
+    }
+
+
+    public function testConstructorOptions() {
+        $payment = new QrPayment(1325090010, 3030, [
+            QrPaymentOptions::VARIABLE_SYMBOL => 123456,
+            QrPaymentOptions::SPECIFIC_SYMBOL => 123456,
+            QrPaymentOptions::CONSTANT_SYMBOL => 1234,
+            QrPaymentOptions::CURRENCY => "EUR",
+            QrPaymentOptions::COMMENT => "random comment",
+            QrPaymentOptions::REPEAT => 5,
+            QrPaymentOptions::INTERNAL_ID => "ID123",
+            QrPaymentOptions::DUE_DATE => new \DateTime("2018-12-24"),
+            QrPaymentOptions::AMOUNT => 100,
+            QrPaymentOptions::COUNTRY => "DE"
+        ]);
+
+        $this->assertEquals(
+            "SPD*1.0*ACC:DE1230300000001325090010*AM:100.00*CC:EUR*X-PER:5*MSG:random comment*X-ID:ID123*X-VS:123456*X-SS:123456*X-KS:1234*DT:20181224",
+            $payment->getQrString()
+        );
+    }
+
+    public function testInvalidDateObject() {
+        $this->expectException(QrPaymentException::class);
+        $payment = $this->getInstance();
+
+        $payment->setDueDate(new \stdClass());
+        $payment->getQrString();
+    }
+
+    public function testInvalidDateString() {
+        $this->expectException(QrPaymentException::class);
+        $payment = $this->getInstance();
+
+        $payment->setDueDate("24. 12. 2018");
+        $payment->getQrString();
     }
 
     private function getInstance(): QrPayment

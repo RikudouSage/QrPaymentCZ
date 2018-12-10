@@ -173,7 +173,7 @@ class QrPayment
         }
 
         if (!$this->dueDate instanceof \DateTime && !@strtotime($this->dueDate)) {
-            throw new QrPaymentException("Error: Due date value ($this->dueDate) cannot be transformed, you must ensure that the due date value is acceptable by strtotime()", QrPaymentException::ERR_DATE);
+            throw new QrPaymentException("Error: Due date value cannot be transformed, you must ensure that the due date value is acceptable by strtotime()", QrPaymentException::ERR_DATE);
         }
 
         return $this->dueDate instanceof \DateTime ? $this->dueDate : new \DateTime($this->dueDate);
