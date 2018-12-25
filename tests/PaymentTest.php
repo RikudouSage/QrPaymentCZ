@@ -156,8 +156,10 @@ class PaymentTest extends TestCase
         $payment = $this->getInstance()->setCurrency("EUR")->setAmount(153)->setComment("TesT");
         $this->assertEquals($payment->getQrString(), $payment->getQrImage()->getText());
 
-        $payment->getQrImage(true);
-        $this->assertContains("Content-type: image/png", xdebug_get_headers());
+        if(function_exists("xdebug_get_headers")) {
+            $payment->getQrImage(true);
+            $this->assertContains("Content-type: image/png", xdebug_get_headers());
+        }
     }
 
     private function getInstance(): QrPayment
