@@ -1,6 +1,7 @@
 # QR code payment (CZ)
 
 ![master build status](https://travis-ci.com/RikudouSage/QrPaymentCZ.svg?branch=master "master branch build status")
+[![Coverage Status](https://img.shields.io/coveralls/github/RikudouSage/QrPaymentCZ/master.svg)](https://coveralls.io/github/RikudouSage/QrPaymentCZ?branch=master)
 [![Download](https://img.shields.io/packagist/dt/rikudou/czqrpayment.svg)](https://packagist.org/packages/rikudou/czqrpayment)
 
 A simple library to generate QR payment code for Czech Republic.
