@@ -10,6 +10,14 @@ use rikudou\CzQrPayment\QrPaymentOptions;
 class PaymentTest extends TestCase
 {
 
+    private $autoloaders = null;
+
+    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    {
+        parent::__construct($name, $data, $dataName);
+        $this->autoloaders = spl_autoload_functions();
+    }
+
     public function testAccountOnly()
     {
         $payment = $this->getInstance();
@@ -85,7 +93,8 @@ class PaymentTest extends TestCase
     }
 
 
-    public function testConstructorOptions() {
+    public function testConstructorOptions()
+    {
         $payment = new QrPayment(1325090010, 3030, [
             QrPaymentOptions::VARIABLE_SYMBOL => 123456,
             QrPaymentOptions::SPECIFIC_SYMBOL => 123456,
@@ -105,7 +114,8 @@ class PaymentTest extends TestCase
         );
     }
 
-    public function testInvalidDateObject() {
+    public function testInvalidDateObject()
+    {
         $this->expectException(QrPaymentException::class);
         $payment = $this->getInstance();
 
@@ -113,7 +123,8 @@ class PaymentTest extends TestCase
         $payment->getQrString();
     }
 
-    public function testInvalidDateString() {
+    public function testInvalidDateString()
+    {
         $this->expectException(QrPaymentException::class);
         $payment = $this->getInstance();
 
@@ -121,9 +132,53 @@ class PaymentTest extends TestCase
         $payment->getQrString();
     }
 
+    public function testGetQrImageFailure()
+    {
+        $this->expectException(get_class(new QrPaymentException())); // autoload the class
+        $payment = $this->getInstance();
+
+        $this->unregisterAutoloader();
+        try {
+            $payment->getQrImage();
+        } catch (\Throwable $exception) {
+            $this->reregisterAutoloader();
+            throw $exception;
+        }
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testGetQrImage()
+    {
+        $this->reregisterAutoloader();
+
+        $payment = $this->getInstance()->setCurrency("EUR")->setAmount(153)->setComment("TesT");
+        $this->assertEquals($payment->getQrString(), $payment->getQrImage()->getText());
+
+        if(function_exists("xdebug_get_headers")) {
+            $payment->getQrImage(true);
+            $this->assertContains("Content-type: image/png", xdebug_get_headers());
+        }
+    }
+
     private function getInstance(): QrPayment
     {
         return new QrPayment(1325090010, 3030);
+    }
+
+    private function unregisterAutoloader()
+    {
+        foreach ($this->autoloaders as $autoloader) {
+            spl_autoload_unregister($autoloader);
+        }
+    }
+
+    private function reregisterAutoloader()
+    {
+        foreach ($this->autoloaders as $autoloader) {
+            spl_autoload_register($autoloader);
+        }
     }
 
 }
