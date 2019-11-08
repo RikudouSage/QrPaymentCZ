@@ -8,7 +8,6 @@ matrix:
         - USE_COVERAGE="1"
         - PHPUNIT_FLAGS="--coverage-clover ./tmp/clover.xml"
     - php: 7.3
-    - php: nightly
 
 install: composer install $COMPOSER_FLAGS
 
