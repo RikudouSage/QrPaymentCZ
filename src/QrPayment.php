@@ -38,6 +38,8 @@ class QrPayment
     public $country = 'CZ';
     /** @var string|null $iban */
     protected $iban = null;
+    /** @var string $payeeName */
+    public $payeeName;
 
     /**
      * QrPayment constructor.
@@ -151,6 +153,9 @@ class QrPayment
         }
         if ($this->constantSymbol) {
             $qr .= sprintf("X-KS:%d*", $this->constantSymbol);
+        }
+        if ($this->payeeName) {
+            $qr .= sprintf("RN:%s*", $this->payeeName);
         }
         if (($dueDate = $this->getDueDate())) {
             $qr .= sprintf("DT:%s*", $dueDate->format('Ymd'));
@@ -327,4 +332,21 @@ class QrPayment
         return $this;
     }
 
+    /**
+     * @return string
+     */
+    public function getPayeeName(): string
+    {
+        return $this->payeeName;
+    }
+
+    /**
+     * @param string $payeeName
+     * @return QrPayment
+     */
+    public function setPayeeName(string $payeeName): QrPayment
+    {
+        $this->payeeName = $payeeName;
+        return $this;
+    }
 }

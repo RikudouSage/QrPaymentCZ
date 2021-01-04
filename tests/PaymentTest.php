@@ -86,6 +86,12 @@ class PaymentTest extends TestCase
         $this->assertEquals("SPD*1.0*ACC:SK5330300000001325090010*AM:0.00*CC:CZK*X-PER:7", $payment->getQrString());
     }
 
+    public function testPayeeName()
+    {
+        $payment = $this->getInstance()->setPayeeName('Random Dude');
+        self::assertEquals("SPD*1.0*ACC:CZ5530300000001325090010*AM:0.00*CC:CZK*X-PER:7*RN:Random Dude", $payment->getQrString());
+    }
+
     public function testFromIban()
     {
         $payment = QrPayment::fromIBAN("CZ5530300000001325090010");
@@ -105,11 +111,12 @@ class PaymentTest extends TestCase
             QrPaymentOptions::INTERNAL_ID => "ID123",
             QrPaymentOptions::DUE_DATE => new \DateTime("2018-12-24"),
             QrPaymentOptions::AMOUNT => 100,
-            QrPaymentOptions::COUNTRY => "DE"
+            QrPaymentOptions::COUNTRY => "DE",
+            QrPaymentOptions::PAYEE_NAME => 'Random Dude',
         ]);
 
         $this->assertEquals(
-            "SPD*1.0*ACC:DE1230300000001325090010*AM:100.00*CC:EUR*X-PER:5*MSG:random comment*X-ID:ID123*X-VS:123456*X-SS:123456*X-KS:1234*DT:20181224",
+            "SPD*1.0*ACC:DE1230300000001325090010*AM:100.00*CC:EUR*X-PER:5*MSG:random comment*X-ID:ID123*X-VS:123456*X-SS:123456*X-KS:1234*RN:Random Dude*DT:20181224",
             $payment->getQrString()
         );
     }
