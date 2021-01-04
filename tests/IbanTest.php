@@ -1,6 +1,6 @@
 <?php
 
-namespace rikudou\CzQrPayment\Tests;
+namespace Rikudou\CzQrPayment\Tests;
 
 use PHPUnit\Framework\TestCase;
 use rikudou\CzQrPayment\QrPayment;

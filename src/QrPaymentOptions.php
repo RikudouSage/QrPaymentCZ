@@ -1,6 +1,6 @@
 <?php
 
-namespace rikudou\CzQrPayment;
+namespace Rikudou\CzQrPayment;
 
 final class QrPaymentOptions
 {

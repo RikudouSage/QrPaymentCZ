@@ -1,6 +1,6 @@
 <?php
 
-namespace rikudou\CzQrPayment\Exception;
+namespace Rikudou\CzQrPayment\Exception;
 
 use RuntimeException;
 

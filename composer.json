@@ -21,6 +21,7 @@
   },
   "autoload": {
     "psr-4": {
+      "Rikudou\\CzQrPayment\\": "src/",
       "rikudou\\CzQrPayment\\": "src/"
     }
   },
@@ -35,7 +36,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "rikudou\\CzQrPayment\\Tests\\": "tests/"
+      "Rikudou\\CzQrPayment\\Tests\\": "tests/"
     }
   },
   "scripts": {

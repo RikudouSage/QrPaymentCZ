@@ -1,12 +1,14 @@
 <?php
 
-namespace rikudou\CzQrPayment;
+namespace Rikudou\CzQrPayment;
 
 use DateTimeImmutable;
 use DateTimeInterface;
 use Endroid\QrCode\QrCode;
 use InvalidArgumentException;
-use rikudou\CzQrPayment\Exception\QrPaymentException;
+use Rikudou\CzQrPayment\Exception\InvalidValueException;
+use Rikudou\CzQrPayment\Exception\MissingLibraryException;
+use Rikudou\CzQrPayment\Exception\QrPaymentException;
 use Rikudou\Iban\Iban\CzechIbanAdapter;
 use Rikudou\Iban\Iban\IbanInterface;
 use Rikudou\QrPayment\QrPaymentInterface;
@@ -73,6 +75,10 @@ final class QrPayment implements QrPaymentInterface
      */
     private $payeeName;
 
+    /**
+     * @param IbanInterface            $iban
+     * @param array<string,mixed>|null $options
+     */
     public function __construct(IbanInterface $iban, ?array $options = null)
     {
         $this->iban = $iban;
@@ -82,7 +88,7 @@ final class QrPayment implements QrPaymentInterface
     }
 
     /**
-     * @param array $options
+     * @param array<string,mixed> $options
      *
      * @throws QrPaymentException
      *
@@ -147,14 +153,12 @@ final class QrPayment implements QrPaymentInterface
     }
 
     /**
-     * @throws QrPaymentException
-     *
      * @return QrCode
      */
     public function getQrImage(): QrCode
     {
         if (!class_exists("Endroid\QrCode\QrCode")) {
-            throw new QrPaymentException('Error: library endroid/qr-code is not loaded.', QrPaymentException::ERR_MISSING_LIBRARY);
+            throw new MissingLibraryException('Error: library endroid/qr-code is not loaded.');
         }
 
         return new QrCode($this->getQrString());
@@ -312,7 +316,7 @@ final class QrPayment implements QrPaymentInterface
     }
 
     /**
-     * @return DateTimeInterface|null
+     * @return DateTimeInterface
      */
     public function getDueDate(): DateTimeInterface
     {
@@ -426,9 +430,9 @@ final class QrPayment implements QrPaymentInterface
         foreach (get_object_vars($this) as $property => $value) {
             if (
                 (is_string($value) || (is_object($value) && method_exists($value, '__toString')))
-                && strpos($value, '*') !== false
+                && strpos((string) $value, '*') !== false
             ) {
-                throw new QrPaymentException("Error: properties cannot contain asterisk (*). Property {$property} contains it.", QrPaymentException::ERR_ASTERISK);
+                throw new InvalidValueException("Error: properties cannot contain asterisk (*). Property {$property} contains it.");
             }
         }
     }
