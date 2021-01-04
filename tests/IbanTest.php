@@ -66,7 +66,7 @@ class IbanTest extends TestCase
      * @param string|int|null $prefix
      *
      * @return string
-     * @throws \rikudou\CzQrPayment\QrPaymentException
+     * @throws \rikudou\CzQrPayment\Exception\QrPaymentException
      */
     private function getIban($account, $bankCode, $prefix = NULL): string
     {

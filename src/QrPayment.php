@@ -2,11 +2,11 @@
 
 namespace rikudou\CzQrPayment;
 
-use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Endroid\QrCode\QrCode;
 use InvalidArgumentException;
+use rikudou\CzQrPayment\Exception\QrPaymentException;
 use Rikudou\Iban\Iban\CzechIbanAdapter;
 use Rikudou\Iban\Iban\IbanInterface;
 use Rikudou\QrPayment\QrPaymentInterface;
@@ -31,7 +31,7 @@ final class QrPayment implements QrPaymentInterface
     /**
      * @var string
      */
-    private $currency = "CZK";
+    private $currency = 'CZK';
 
     /**
      * @var string|null
@@ -83,8 +83,10 @@ final class QrPayment implements QrPaymentInterface
 
     /**
      * @param array $options
-     * @return $this
+     *
      * @throws QrPaymentException
+     *
+     * @return $this
      */
     public function setOptions(array $options): self
     {
@@ -100,77 +102,59 @@ final class QrPayment implements QrPaymentInterface
         }
 
         $this->checkProperties();
+
         return $this;
     }
 
     /**
-     * Returns QR Payment string
-     * Throws exception if any of the fields contains asterisk symbol
-     * or if the date is not in format understandable by strtotime() function
+     * @throws QrPaymentException
      *
      * @return string
-     * @throws QrPaymentException
      */
     public function getQrString(): string
     {
         $this->checkProperties();
 
-        $qr = "SPD*1.0*";
-        $qr .= sprintf("ACC:%s*", $this->getIban());
-        $qr .= sprintf("AM:%.2f*", $this->amount);
-        $qr .= sprintf("CC:%s*", strtoupper($this->currency));
-        $qr .= sprintf("X-PER:%d*", $this->repeat);
+        $qr = 'SPD*1.0*';
+        $qr .= sprintf('ACC:%s*', $this->getIban());
+        $qr .= sprintf('AM:%.2f*', $this->amount);
+        $qr .= sprintf('CC:%s*', strtoupper($this->currency));
+        $qr .= sprintf('X-PER:%d*', $this->repeat);
 
         if ($this->comment !== null) {
-            $qr .= sprintf("MSG:%.60s*", $this->comment);
+            $qr .= sprintf('MSG:%.60s*', $this->comment);
         }
         if ($this->internalId !== null) {
-            $qr .= sprintf("X-ID:%s*", $this->internalId);
+            $qr .= sprintf('X-ID:%s*', $this->internalId);
         }
         if ($this->variableSymbol !== null) {
-            $qr .= sprintf("X-VS:%d*", $this->variableSymbol);
+            $qr .= sprintf('X-VS:%d*', $this->variableSymbol);
         }
         if ($this->specificSymbol !== null) {
-            $qr .= sprintf("X-SS:%d*", $this->specificSymbol);
+            $qr .= sprintf('X-SS:%d*', $this->specificSymbol);
         }
         if ($this->constantSymbol !== null) {
-            $qr .= sprintf("X-KS:%d*", $this->constantSymbol);
+            $qr .= sprintf('X-KS:%d*', $this->constantSymbol);
         }
         if ($this->payeeName !== null) {
-            $qr .= sprintf("RN:%s*", $this->payeeName);
+            $qr .= sprintf('RN:%s*', $this->payeeName);
         }
         if ($this->dueDate !== null) {
-            $qr .= sprintf("DT:%s*", $this->dueDate->format('Ymd'));
+            $qr .= sprintf('DT:%s*', $this->dueDate->format('Ymd'));
         }
 
         return substr($qr, 0, -1);
     }
 
     /**
-     * Checks all properties for asterisk and throws exception if asterisk
-     * is found
      * @throws QrPaymentException
-     */
-    protected function checkProperties(): void
-    {
-        foreach (get_object_vars($this) as $property => $value) {
-            if (
-                (is_string($value) || (is_object($value) && method_exists($value, '__toString')))
-                && strpos($value, "*") !== false
-            ) {
-                throw new QrPaymentException("Error: properties cannot contain asterisk (*). Property {$property} contains it.", QrPaymentException::ERR_ASTERISK);
-            }
-        }
-    }
-
-    /**
+     *
      * @return QrCode
-     * @throws QrPaymentException
      */
     public function getQrImage(): QrCode
     {
         if (!class_exists("Endroid\QrCode\QrCode")) {
-            throw new QrPaymentException("Error: library endroid/qr-code is not loaded.", QrPaymentException::ERR_MISSING_LIBRARY);
+            throw new QrPaymentException('Error: library endroid/qr-code is not loaded.', QrPaymentException::ERR_MISSING_LIBRARY);
         }
 
         return new QrCode($this->getQrString());
@@ -179,6 +163,7 @@ final class QrPayment implements QrPaymentInterface
     /**
      * @param string $accountNumber
      * @param string $bankCode
+     *
      * @return self
      */
     public static function fromAccountAndBankCode(string $accountNumber, string $bankCode)
@@ -196,11 +181,13 @@ final class QrPayment implements QrPaymentInterface
 
     /**
      * @param int|null $variableSymbol
+     *
      * @return QrPayment
      */
     public function setVariableSymbol(?int $variableSymbol): QrPayment
     {
         $this->variableSymbol = $variableSymbol;
+
         return $this;
     }
 
@@ -214,11 +201,13 @@ final class QrPayment implements QrPaymentInterface
 
     /**
      * @param int|null $specificSymbol
+     *
      * @return QrPayment
      */
     public function setSpecificSymbol(?int $specificSymbol): QrPayment
     {
         $this->specificSymbol = $specificSymbol;
+
         return $this;
     }
 
@@ -232,11 +221,13 @@ final class QrPayment implements QrPaymentInterface
 
     /**
      * @param int|null $constantSymbol
+     *
      * @return QrPayment
      */
     public function setConstantSymbol(?int $constantSymbol): QrPayment
     {
         $this->constantSymbol = $constantSymbol;
+
         return $this;
     }
 
@@ -250,11 +241,13 @@ final class QrPayment implements QrPaymentInterface
 
     /**
      * @param string $currency
+     *
      * @return QrPayment
      */
     public function setCurrency(string $currency): QrPayment
     {
         $this->currency = $currency;
+
         return $this;
     }
 
@@ -268,11 +261,13 @@ final class QrPayment implements QrPaymentInterface
 
     /**
      * @param string|null $comment
+     *
      * @return QrPayment
      */
     public function setComment(?string $comment): QrPayment
     {
         $this->comment = $comment;
+
         return $this;
     }
 
@@ -286,11 +281,13 @@ final class QrPayment implements QrPaymentInterface
 
     /**
      * @param int $repeat
+     *
      * @return QrPayment
      */
     public function setRepeat(int $repeat): QrPayment
     {
         $this->repeat = $repeat;
+
         return $this;
     }
 
@@ -304,11 +301,13 @@ final class QrPayment implements QrPaymentInterface
 
     /**
      * @param string|null $internalId
+     *
      * @return QrPayment
      */
     public function setInternalId(?string $internalId): QrPayment
     {
         $this->internalId = $internalId;
+
         return $this;
     }
 
@@ -320,16 +319,19 @@ final class QrPayment implements QrPaymentInterface
         if ($this->dueDate === null) {
             return new DateTimeImmutable();
         }
+
         return $this->dueDate;
     }
 
     /**
      * @param DateTimeInterface|null $dueDate
+     *
      * @return QrPayment
      */
     public function setDueDate(?DateTimeInterface $dueDate): QrPayment
     {
         $this->dueDate = $dueDate;
+
         return $this;
     }
 
@@ -343,11 +345,13 @@ final class QrPayment implements QrPaymentInterface
 
     /**
      * @param float $amount
+     *
      * @return QrPayment
      */
     public function setAmount(float $amount): QrPayment
     {
         $this->amount = $amount;
+
         return $this;
     }
 
@@ -361,11 +365,13 @@ final class QrPayment implements QrPaymentInterface
 
     /**
      * @param string $country
+     *
      * @return QrPayment
      */
     public function setCountry(string $country): QrPayment
     {
         $this->country = $country;
+
         return $this;
     }
 
@@ -379,11 +385,13 @@ final class QrPayment implements QrPaymentInterface
 
     /**
      * @param IbanInterface $iban
+     *
      * @return QrPayment
      */
     public function setIban(IbanInterface $iban): QrPayment
     {
         $this->iban = $iban;
+
         return $this;
     }
 
@@ -397,11 +405,31 @@ final class QrPayment implements QrPaymentInterface
 
     /**
      * @param string $payeeName
+     *
      * @return QrPayment
      */
     public function setPayeeName(string $payeeName): QrPayment
     {
         $this->payeeName = $payeeName;
+
         return $this;
+    }
+
+    /**
+     * Checks all properties for asterisk and throws exception if asterisk
+     * is found
+     *
+     * @throws QrPaymentException
+     */
+    private function checkProperties(): void
+    {
+        foreach (get_object_vars($this) as $property => $value) {
+            if (
+                (is_string($value) || (is_object($value) && method_exists($value, '__toString')))
+                && strpos($value, '*') !== false
+            ) {
+                throw new QrPaymentException("Error: properties cannot contain asterisk (*). Property {$property} contains it.", QrPaymentException::ERR_ASTERISK);
+            }
+        }
     }
 }
