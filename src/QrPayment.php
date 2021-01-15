@@ -58,12 +58,7 @@ final class QrPayment implements QrPaymentInterface
     /**
      * @var float
      */
-    private $amount;
-
-    /**
-     * @var string
-     */
-    private $country = 'CZ';
+    private $amount = 0.0;
 
     /**
      * @var IbanInterface
@@ -119,8 +114,12 @@ final class QrPayment implements QrPaymentInterface
     {
         $this->checkProperties();
 
+        if ($this->iban->getValidator() && !$this->iban->getValidator()->isValid()) {
+            throw new InvalidValueException("The IBAN is not a valid IBAN");
+        }
+
         $qr = 'SPD*1.0*';
-        $qr .= sprintf('ACC:%s*', $this->getIban());
+        $qr .= sprintf('ACC:%s*', $this->iban);
         $qr .= sprintf('AM:%.2f*', $this->amount);
         $qr .= sprintf('CC:%s*', strtoupper($this->currency));
         $qr .= sprintf('X-PER:%d*', $this->repeat);
@@ -272,18 +271,6 @@ final class QrPayment implements QrPaymentInterface
     public function setAmount(float $amount): self
     {
         $this->amount = $amount;
-
-        return $this;
-    }
-
-    public function getCountry(): string
-    {
-        return $this->country;
-    }
-
-    public function setCountry(string $country): self
-    {
-        $this->country = $country;
 
         return $this;
     }
