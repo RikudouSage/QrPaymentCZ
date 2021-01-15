@@ -74,6 +74,6 @@ jobs:
       - name: Download Coverage Client
         run: wget https://github.com/php-coveralls/php-coveralls/releases/download/v2.4.3/php-coveralls.phar
       - name: Publish Coverage
-        run: php php-coveralls.phar
+        run: php php-coveralls.phar -v
         env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
