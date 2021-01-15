@@ -6,16 +6,16 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Endroid\QrCode\QrCode;
 use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 use Rikudou\CzQrPayment\Exception\InvalidValueException;
 use Rikudou\CzQrPayment\Exception\MissingLibraryException;
 use Rikudou\CzQrPayment\Options\QrPaymentOptions;
 use Rikudou\CzQrPayment\QrPayment;
-use PHPUnit\Framework\TestCase;
 use Rikudou\Iban\Iban\IBAN;
 use Rikudou\Iban\Iban\IbanInterface;
 use Rikudou\Iban\Validator\ValidatorInterface;
 
-class QrPaymentTest extends TestCase
+final class QrPaymentTest extends TestCase
 {
     /**
      * @var QrPayment
@@ -249,13 +249,12 @@ class QrPaymentTest extends TestCase
 
         $this->instance->setIban(new IBAN('CZ6130300000001325090096'));
         self::assertEquals(
-            "SPD*1.0*ACC:CZ6130300000001325090096*AM:0.00*CC:CZK*X-PER:7",
+            'SPD*1.0*ACC:CZ6130300000001325090096*AM:0.00*CC:CZK*X-PER:7',
             $this->instance->getQrString()
         );
 
         $this->expectException(InvalidValueException::class);
         $this->instance->setIban(new class implements IbanInterface {
-
             public function __toString()
             {
                 return $this->asString();
@@ -286,7 +285,6 @@ class QrPaymentTest extends TestCase
         $this->expectException(InvalidValueException::class);
         $this->instance->setPayeeName('Random*Dude');
         $this->instance->getQrString();
-
     }
 
     private function getIban(): IBAN
