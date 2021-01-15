@@ -71,9 +71,9 @@ final class QrPayment implements QrPaymentInterface
     private $iban;
 
     /**
-     * @var string
+     * @var string|null
      */
-    private $payeeName;
+    private $payeeName = null;
 
     /**
      * @param IbanInterface            $iban
@@ -114,8 +114,6 @@ final class QrPayment implements QrPaymentInterface
 
     /**
      * @throws QrPaymentException
-     *
-     * @return string
      */
     public function getQrString(): string
     {
@@ -152,9 +150,6 @@ final class QrPayment implements QrPaymentInterface
         return substr($qr, 0, -1);
     }
 
-    /**
-     * @return QrCode
-     */
     public function getQrImage(): QrCode
     {
         if (!class_exists("Endroid\QrCode\QrCode")) {
@@ -164,160 +159,95 @@ final class QrPayment implements QrPaymentInterface
         return new QrCode($this->getQrString());
     }
 
-    /**
-     * @param string $accountNumber
-     * @param string $bankCode
-     *
-     * @return self
-     */
-    public static function fromAccountAndBankCode(string $accountNumber, string $bankCode)
+    public static function fromAccountAndBankCode(string $accountNumber, string $bankCode): self
     {
         return new self(new CzechIbanAdapter($accountNumber, $bankCode));
     }
 
-    /**
-     * @return int|null
-     */
     public function getVariableSymbol(): ?int
     {
         return $this->variableSymbol;
     }
 
-    /**
-     * @param int|null $variableSymbol
-     *
-     * @return QrPayment
-     */
-    public function setVariableSymbol(?int $variableSymbol): QrPayment
+    public function setVariableSymbol(?int $variableSymbol): self
     {
         $this->variableSymbol = $variableSymbol;
 
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getSpecificSymbol(): ?int
     {
         return $this->specificSymbol;
     }
 
-    /**
-     * @param int|null $specificSymbol
-     *
-     * @return QrPayment
-     */
-    public function setSpecificSymbol(?int $specificSymbol): QrPayment
+    public function setSpecificSymbol(?int $specificSymbol): self
     {
         $this->specificSymbol = $specificSymbol;
 
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
     public function getConstantSymbol(): ?int
     {
         return $this->constantSymbol;
     }
 
-    /**
-     * @param int|null $constantSymbol
-     *
-     * @return QrPayment
-     */
-    public function setConstantSymbol(?int $constantSymbol): QrPayment
+    public function setConstantSymbol(?int $constantSymbol): self
     {
         $this->constantSymbol = $constantSymbol;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getCurrency(): string
     {
         return $this->currency;
     }
 
-    /**
-     * @param string $currency
-     *
-     * @return QrPayment
-     */
-    public function setCurrency(string $currency): QrPayment
+    public function setCurrency(string $currency): self
     {
         $this->currency = $currency;
 
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getComment(): ?string
     {
         return $this->comment;
     }
 
-    /**
-     * @param string|null $comment
-     *
-     * @return QrPayment
-     */
-    public function setComment(?string $comment): QrPayment
+    public function setComment(?string $comment): self
     {
         $this->comment = $comment;
 
         return $this;
     }
 
-    /**
-     * @return int
-     */
     public function getRepeat(): int
     {
         return $this->repeat;
     }
 
-    /**
-     * @param int $repeat
-     *
-     * @return QrPayment
-     */
-    public function setRepeat(int $repeat): QrPayment
+    public function setRepeat(int $repeat): self
     {
         $this->repeat = $repeat;
 
         return $this;
     }
 
-    /**
-     * @return string|null
-     */
     public function getInternalId(): ?string
     {
         return $this->internalId;
     }
 
-    /**
-     * @param string|null $internalId
-     *
-     * @return QrPayment
-     */
-    public function setInternalId(?string $internalId): QrPayment
+    public function setInternalId(?string $internalId): self
     {
         $this->internalId = $internalId;
 
         return $this;
     }
 
-    /**
-     * @return DateTimeInterface
-     */
     public function getDueDate(): DateTimeInterface
     {
         if ($this->dueDate === null) {
@@ -327,92 +257,55 @@ final class QrPayment implements QrPaymentInterface
         return $this->dueDate;
     }
 
-    /**
-     * @param DateTimeInterface|null $dueDate
-     *
-     * @return QrPayment
-     */
-    public function setDueDate(?DateTimeInterface $dueDate): QrPayment
+    public function setDueDate(?DateTimeInterface $dueDate): self
     {
         $this->dueDate = $dueDate;
 
         return $this;
     }
 
-    /**
-     * @return float
-     */
     public function getAmount(): float
     {
         return $this->amount;
     }
 
-    /**
-     * @param float $amount
-     *
-     * @return QrPayment
-     */
-    public function setAmount(float $amount): QrPayment
+    public function setAmount(float $amount): self
     {
         $this->amount = $amount;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
     public function getCountry(): string
     {
         return $this->country;
     }
 
-    /**
-     * @param string $country
-     *
-     * @return QrPayment
-     */
-    public function setCountry(string $country): QrPayment
+    public function setCountry(string $country): self
     {
         $this->country = $country;
 
         return $this;
     }
 
-    /**
-     * @return IbanInterface
-     */
     public function getIban(): IbanInterface
     {
         return $this->iban;
     }
 
-    /**
-     * @param IbanInterface $iban
-     *
-     * @return QrPayment
-     */
-    public function setIban(IbanInterface $iban): QrPayment
+    public function setIban(IbanInterface $iban): self
     {
         $this->iban = $iban;
 
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getPayeeName(): string
+    public function getPayeeName(): ?string
     {
         return $this->payeeName;
     }
 
-    /**
-     * @param string $payeeName
-     *
-     * @return QrPayment
-     */
-    public function setPayeeName(string $payeeName): QrPayment
+    public function setPayeeName(?string $payeeName): self
     {
         $this->payeeName = $payeeName;
 
