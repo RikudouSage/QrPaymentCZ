@@ -72,7 +72,7 @@ jobs:
       - name: Generate Coverage
         run: composer phpunit -- --coverage-clover ./build/logs/clover.xml
       - name: Download Coverage Client
-        run: wget https://github.com/php-coveralls/php-coveralls/releases/download/v2.2.0/php-coveralls.phar
+        run: wget https://github.com/php-coveralls/php-coveralls/releases/download/v2.4.3/php-coveralls.phar
       - name: Publish Coverage
         run: php php-coveralls.phar
         env:
