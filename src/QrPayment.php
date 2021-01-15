@@ -115,7 +115,7 @@ final class QrPayment implements QrPaymentInterface
         $this->checkProperties();
 
         if ($this->iban->getValidator() !== null && !$this->iban->getValidator()->isValid()) {
-            throw new InvalidValueException("The IBAN is not a valid IBAN");
+            throw new InvalidValueException('The IBAN is not a valid IBAN');
         }
 
         $qr = 'SPD*1.0*';
