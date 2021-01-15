@@ -5,7 +5,7 @@ namespace Rikudou\CzQrPayment\Tests;
 use PHPUnit\Framework\TestCase;
 use rikudou\CzQrPayment\QrPayment;
 use rikudou\CzQrPayment\Exception\QrPaymentException;
-use rikudou\CzQrPayment\QrPaymentOptions;
+use Rikudou\CzQrPayment\Options\QrPaymentOptions;
 
 class PaymentTest extends TestCase
 {

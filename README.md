@@ -55,7 +55,7 @@ provided in the class.
 <?php
 
 use rikudou\CzQrPayment\QrPayment;
-use rikudou\CzQrPayment\QrPaymentOptions;
+use Rikudou\CzQrPayment\Options\QrPaymentOptions;
 
 $payment = new QrPayment(1325090010, 3030, [
   QrPaymentOptions::VARIABLE_SYMBOL => 123456,
@@ -123,7 +123,7 @@ The helper class `QrPaymentOptions` can be used for options names.
 ```php
 <?php
 use rikudou\CzQrPayment\QrPayment;
-use rikudou\CzQrPayment\QrPaymentOptions;
+use Rikudou\CzQrPayment\Options\QrPaymentOptions;
 
 $payment = new QrPayment(1325090010, 3030);
 
@@ -151,7 +151,7 @@ Returns itself, you can use this method for chaining.
 ```php
 <?php
 use rikudou\CzQrPayment\QrPayment;
-use rikudou\CzQrPayment\QrPaymentOptions;
+use Rikudou\CzQrPayment\Options\QrPaymentOptions;
 
 $payment = new QrPayment(1325090010, 3030);
 
@@ -195,7 +195,7 @@ Returns the string that should be encoded in QR image.
 ```php
 <?php
 use rikudou\CzQrPayment\QrPayment;
-use rikudou\CzQrPayment\QrPaymentOptions;
+use Rikudou\CzQrPayment\Options\QrPaymentOptions;
 
 $payment = new QrPayment(1325090010, 3030, [
   QrPaymentOptions::AMOUNT => 100,
@@ -247,7 +247,7 @@ content type to image/png, defaults to false
 <?php
 
 use rikudou\CzQrPayment\QrPayment;
-use rikudou\CzQrPayment\QrPaymentOptions;
+use Rikudou\CzQrPayment\Options\QrPaymentOptions;
 
 $payment = QrPayment::fromIBAN("CZ5530300000001325090010")->setOptions([
   QrPaymentOptions::AMOUNT => 100
