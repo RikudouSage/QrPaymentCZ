@@ -123,6 +123,7 @@ class QrPaymentTest extends TestCase
     public function testVariableSymbol()
     {
         $this->instance->setVariableSymbol(789);
+        self::assertEquals(789, $this->instance->getVariableSymbol());
         self::assertEquals("{$this->getDefaultEmptyString()}*X-VS:789", $this->instance->getQrString());
 
         $this->instance->setVariableSymbol(null);
@@ -132,6 +133,7 @@ class QrPaymentTest extends TestCase
     public function testSpecificSymbol()
     {
         $this->instance->setSpecificSymbol(7890);
+        self::assertEquals(7890, $this->instance->getSpecificSymbol());
         self::assertEquals("{$this->getDefaultEmptyString()}*X-SS:7890", $this->instance->getQrString());
 
         $this->instance->setSpecificSymbol(null);
@@ -141,6 +143,7 @@ class QrPaymentTest extends TestCase
     public function testConstantSymbol()
     {
         $this->instance->setConstantSymbol(741);
+        self::assertEquals(741, $this->instance->getConstantSymbol());
         self::assertEquals("{$this->getDefaultEmptyString()}*X-KS:741", $this->instance->getQrString());
 
         $this->instance->setConstantSymbol(null);
@@ -165,6 +168,7 @@ class QrPaymentTest extends TestCase
     public function testComment()
     {
         $this->instance->setComment('test comment');
+        self::assertEquals('test comment', $this->instance->getComment());
         self::assertEquals("{$this->getDefaultEmptyString()}*MSG:test comment", $this->instance->getQrString());
 
         $this->instance->setComment(null);
@@ -189,6 +193,7 @@ class QrPaymentTest extends TestCase
     public function testInternalId()
     {
         $this->instance->setInternalId('abcde');
+        self::assertEquals('abcde', $this->instance->getInternalId());
         self::assertEquals("{$this->getDefaultEmptyString()}*X-ID:abcde", $this->instance->getQrString());
 
         $this->instance->setInternalId(null);
@@ -204,7 +209,9 @@ class QrPaymentTest extends TestCase
         self::assertInstanceOf(DateTimeInterface::class, $this->instance->getDueDate());
         self::assertEquals($this->getDefaultEmptyString(), $this->instance->getQrString());
 
-        $this->instance->setDueDate(new DateTimeImmutable('2025-01-07'));
+        $dueDate = new DateTimeImmutable('2025-01-07');
+        $this->instance->setDueDate($dueDate);
+        self::assertEquals($dueDate, $this->instance->getDueDate());
         self::assertEquals("{$this->getDefaultEmptyString()}*DT:20250107", $this->instance->getQrString());
 
         $this->instance->setDueDate(null);
@@ -270,6 +277,7 @@ class QrPaymentTest extends TestCase
     public function testPayeeName()
     {
         $this->instance->setPayeeName('Random Dude');
+        self::assertEquals('Random Dude', $this->instance->getPayeeName());
         self::assertEquals("{$this->getDefaultEmptyString()}*RN:Random Dude", $this->instance->getQrString());
 
         $this->instance->setPayeeName(null);
