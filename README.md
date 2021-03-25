@@ -285,7 +285,7 @@ This is a list of options you can set.
 - `string $internalId` - internal id of the payment, has no default
 - `DateTimeInterface dueDate` - the due date for payment, has no default
 - `float $amount` - the amount for the payment, shouldn't have more than 2 decimal places, has no default
-- `country` - [ISO 3166-1 alpha-2 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
+- `string $country` - [ISO 3166-1 alpha-2 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
   for country, defaults to `CZ`
 
 All of these options can be set using the `QrPaymentOptions` helper class as constants for the constructor or
