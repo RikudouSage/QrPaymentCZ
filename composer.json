@@ -15,10 +15,13 @@
     }
   ],
   "require": {
-    "php": "^7.3 | ^8.0"
+    "php": "^7.3 | ^8.0",
+    "rikudou/qr-payment-interface": "^1.0",
+    "rikudou/iban": "^1.1"
   },
   "autoload": {
     "psr-4": {
+      "Rikudou\\CzQrPayment\\": "src/",
       "rikudou\\CzQrPayment\\": "src/"
     }
   },
@@ -28,11 +31,18 @@
   "require-dev": {
     "phpunit/phpunit": "^9.5",
     "php-coveralls/php-coveralls": "^2.1",
-    "endroid/qr-code": "^3.2"
+    "endroid/qr-code": "^3.2",
+    "friendsofphp/php-cs-fixer": "^2.17",
+    "phpstan/phpstan": "^0.12.67"
   },
   "autoload-dev": {
     "psr-4": {
-      "rikudou\\CzQrPayment\\Tests\\": "tests/"
+      "Rikudou\\CzQrPayment\\Tests\\": "tests/"
     }
+  },
+  "scripts": {
+    "fixer": "php-cs-fixer fix src --verbose",
+    "phpstan": "phpstan analyse --level=max src",
+    "phpunit": "phpunit"
   }
 }

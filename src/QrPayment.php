@@ -1,352 +1,322 @@
 <?php
 
-namespace rikudou\CzQrPayment;
+namespace Rikudou\CzQrPayment;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use Endroid\QrCode\QrCode;
+use InvalidArgumentException;
+use Rikudou\CzQrPayment\Exception\InvalidValueException;
+use Rikudou\CzQrPayment\Exception\MissingLibraryException;
+use Rikudou\Iban\Iban\CzechIbanAdapter;
+use Rikudou\Iban\Iban\IbanInterface;
+use Rikudou\QrPayment\QrPaymentInterface;
 
-/**
- * Class QrPayment
- * @package rikudou\CzQrPayment
- */
-class QrPayment
+final class QrPayment implements QrPaymentInterface
 {
-
-    /** @var  int|string $account */
-    protected $account;
-    /** @var  int $bank */
-    protected $bank;
-
-    /** @var int $variableSymbol */
-    public $variableSymbol;
-    /** @var int $specificSymbol */
-    public $specificSymbol;
-    /** @var int $constantSymbol */
-    public $constantSymbol;
-    /** @var string $currency */
-    public $currency = "CZK";
-    /** @var string $comment */
-    public $comment = "";
-    /** @var int $repeat */
-    public $repeat = 7;
-    /** @var string $internalId */
-    public $internalId;
-    /** @var string|\DateTime $dueDate */
-    public $dueDate;
-    /** @var float $amount */
-    public $amount;
-    /** @var string $country */
-    public $country = 'CZ';
-    /** @var string|null $iban */
-    protected $iban = null;
-    /** @var string $payeeName */
-    public $payeeName;
+    /**
+     * @var int|null
+     */
+    private $variableSymbol = null;
 
     /**
-     * QrPayment constructor.
-     * Sets account and bank. Allows to specify options in array in format:
-     * property_name => value
-     *
-     * @param int|string $account
-     * @param int|string $bank
-     * @param array $options
-     *
-     * @throws \rikudou\CzQrPayment\QrPaymentException
+     * @var int|null
      */
-    public function __construct($account, $bank, array $options = null)
-    {
-        $this->account = $account;
-        $this->bank = $bank;
+    private $specificSymbol = null;
 
-        if ($options) {
+    /**
+     * @var int|null
+     */
+    private $constantSymbol = null;
+
+    /**
+     * @var string
+     */
+    private $currency = 'CZK';
+
+    /**
+     * @var string|null
+     */
+    private $comment = null;
+
+    /**
+     * @var int
+     */
+    private $repeat = 7;
+
+    /**
+     * @var string|null
+     */
+    private $internalId = null;
+
+    /**
+     * @var DateTimeInterface|null
+     */
+    private $dueDate = null;
+
+    /**
+     * @var float
+     */
+    private $amount = 0.0;
+
+    /**
+     * @var IbanInterface
+     */
+    private $iban;
+
+    /**
+     * @var string|null
+     */
+    private $payeeName = null;
+
+    /**
+     * @param IbanInterface            $iban
+     * @param array<string,mixed>|null $options
+     *
+     * @throws InvalidValueException
+     * @throws InvalidArgumentException
+     */
+    public function __construct(IbanInterface $iban, ?array $options = null)
+    {
+        $this->iban = $iban;
+        if ($options !== null) {
             $this->setOptions($options);
         }
     }
 
     /**
-     * Specifies options in array in format:
-     * property_name => value
+     * @param array<string,mixed> $options
      *
-     * Throws exception if any of the fields contains asterisk symbol
+     * @throws InvalidValueException
+     * @throws InvalidArgumentException
      *
-     * @param array $options
      * @return $this
-     * @throws \rikudou\CzQrPayment\QrPaymentException
      */
-    public function setOptions(array $options)
+    public function setOptions(array $options): self
     {
         foreach ($options as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->$key = $value;
+            $method = sprintf('set%s', ucfirst($key));
+            if (method_exists($this, $method)) {
+                /** @var callable $callable */
+                $callable = [$this, $method];
+                call_user_func($callable, $value);
+            } else {
+                throw new InvalidArgumentException("The property '{$key}' is not valid");
             }
         }
 
         $this->checkProperties();
+
         return $this;
     }
 
     /**
-     * Converts account and bank numbers to IBAN
-     * @throws \rikudou\CzQrPayment\QrPaymentException
-     * @return string
-     */
-    public function getIBAN(): string
-    {
-        $this->checkProperties();
-        if (!is_null($this->iban)) {
-            return $this->iban;
-        }
-        $this->country = strtoupper($this->country);
-
-        $part1 = ord($this->country[0]) - ord('A') + 10;
-        $part2 = ord($this->country[1]) - ord('A') + 10;
-
-        $accountPrefix = 0;
-        $accountNumber = $this->account;
-        if (strpos($accountNumber, '-') !== false) {
-            $accountParts = explode('-', $accountNumber);
-            $accountPrefix = $accountParts[0];
-            $accountNumber = $accountParts[1];
-        }
-
-        $numeric = sprintf('%04d%06d%010s%d%d00', $this->bank, $accountPrefix, $accountNumber, $part1, $part2);
-
-        $mod = "";
-        foreach (str_split($numeric) as $n) {
-            $mod = ($mod . $n) % 97;
-        }
-
-        $this->iban = sprintf("%.2s%02d%04d%06d%010s", $this->country, 98 - $mod, $this->bank, $accountPrefix, $accountNumber);
-        return $this->iban;
-    }
-
-    /**
-     * Returns QR Payment string
-     * Throws exception if any of the fields contains asterisk symbol
-     * or if the date is not in format understandable by strtotime() function
-     *
-     * @return string
-     * @throws \rikudou\CzQrPayment\QrPaymentException
+     * @throws InvalidValueException
      */
     public function getQrString(): string
     {
         $this->checkProperties();
 
-        $qr = "SPD*1.0*";
-        $qr .= sprintf("ACC:%s*", $this->getIBAN());
-        $qr .= sprintf("AM:%.2F*", $this->amount);
-        $qr .= sprintf("CC:%s*", strtoupper($this->currency));
+        if ($this->iban->getValidator() !== null && !$this->iban->getValidator()->isValid()) {
+            throw new InvalidValueException('The IBAN is not a valid IBAN');
+        }
 
-        if ($this->repeat) {
-            $qr .= sprintf("X-PER:%d*", $this->repeat);
+        $qr = 'SPD*1.0*';
+        $qr .= sprintf('ACC:%s*', $this->iban);
+        $qr .= sprintf('AM:%.2F*', $this->amount);
+        $qr .= sprintf('CC:%s*', strtoupper($this->currency));
+        $qr .= sprintf('X-PER:%d*', $this->repeat);
+
+        if ($this->comment !== null) {
+            $qr .= sprintf('MSG:%.60s*', $this->comment);
         }
-        if ($this->comment) {
-            $qr .= sprintf("MSG:%.60s*", $this->comment);
+        if ($this->internalId !== null) {
+            $qr .= sprintf('X-ID:%s*', $this->internalId);
         }
-        if ($this->internalId) {
-            $qr .= sprintf("X-ID:%s*", $this->internalId);
+        if ($this->variableSymbol !== null) {
+            $qr .= sprintf('X-VS:%d*', $this->variableSymbol);
         }
-        if ($this->variableSymbol) {
-            $qr .= sprintf("X-VS:%d*", $this->variableSymbol);
+        if ($this->specificSymbol !== null) {
+            $qr .= sprintf('X-SS:%d*', $this->specificSymbol);
         }
-        if ($this->specificSymbol) {
-            $qr .= sprintf("X-SS:%d*", $this->specificSymbol);
+        if ($this->constantSymbol !== null) {
+            $qr .= sprintf('X-KS:%d*', $this->constantSymbol);
         }
-        if ($this->constantSymbol) {
-            $qr .= sprintf("X-KS:%d*", $this->constantSymbol);
+        if ($this->payeeName !== null) {
+            $qr .= sprintf('RN:%s*', $this->payeeName);
         }
-        if ($this->payeeName) {
-            $qr .= sprintf("RN:%s*", $this->payeeName);
-        }
-        if (($dueDate = $this->getDueDate())) {
-            $qr .= sprintf("DT:%s*", $dueDate->format('Ymd'));
+        if ($this->dueDate !== null) {
+            $qr .= sprintf('DT:%s*', $this->dueDate->format('Ymd'));
         }
 
         return substr($qr, 0, -1);
     }
 
-    /**
-     * Checks whether the due date is set.
-     * Throws exception if the date format cannot be parsed by strtotime() func
-     *
-     * @return \DateTime|null
-     * @throws \rikudou\CzQrPayment\QrPaymentException
-     */
-    protected function getDueDate(): ?\DateTime
-    {
-        if (!$this->dueDate) {
-            return null;
-        }
-
-        if (!$this->dueDate instanceof \DateTime && (!is_string($this->dueDate) || !@strtotime($this->dueDate))) {
-            throw new QrPaymentException("Error: Due date value cannot be transformed, you must ensure that the due date value is acceptable by strtotime()", QrPaymentException::ERR_DATE);
-        }
-
-        return $this->dueDate instanceof \DateTime ? $this->dueDate : new \DateTime($this->dueDate);
-    }
-
-    /**
-     * Checks all properties for asterisk and throws exception if asterisk
-     * is found
-     * @throws \rikudou\CzQrPayment\QrPaymentException
-     */
-    protected function checkProperties(): void
-    {
-        foreach (get_object_vars($this) as $property => $value) {
-            if ($property !== "dueDate" && strpos($value, "*") !== false) {
-                throw new QrPaymentException("Error: properties cannot contain asterisk (*). Property $property contains it.", QrPaymentException::ERR_ASTERISK);
-            }
-        }
-    }
-
-    /**
-     * Return QrCode object with QrString set, for more info see Endroid QrCode
-     * documentation
-     *
-     * @param bool $setPngHeader
-     * @return \Endroid\QrCode\QrCode
-     * @throws \rikudou\CzQrPayment\QrPaymentException
-     */
-    public function getQrImage(bool $setPngHeader = false): QrCode
+    public function getQrImage(): QrCode
     {
         if (!class_exists("Endroid\QrCode\QrCode")) {
-            throw new QrPaymentException("Error: library endroid/qr-code is not loaded.", QrPaymentException::ERR_MISSING_LIBRARY);
-        }
-
-        if ($setPngHeader) {
-            header("Content-type: image/png");
+            throw new MissingLibraryException('Error: library endroid/qr-code is not loaded.');
         }
 
         return new QrCode($this->getQrString());
     }
 
-    /**
-     * @param string $iban
-     *
-     * @return static
-     * @throws \rikudou\CzQrPayment\QrPaymentException
-     */
-    public static function fromIBAN(string $iban)
+    public static function fromAccountAndBankCode(string $accountNumber, string $bankCode): self
     {
-        $instance = new static(0, 0);
-        $instance->iban = $iban;
-        return $instance;
+        return new self(new CzechIbanAdapter($accountNumber, $bankCode));
     }
 
-    /**
-     * @param int $variableSymbol
-     * @return QrPayment
-     */
-    public function setVariableSymbol(int $variableSymbol)
+    public function getVariableSymbol(): ?int
+    {
+        return $this->variableSymbol;
+    }
+
+    public function setVariableSymbol(?int $variableSymbol): self
     {
         $this->variableSymbol = $variableSymbol;
+
         return $this;
     }
 
-    /**
-     * @param int $specificSymbol
-     * @return QrPayment
-     */
-    public function setSpecificSymbol(int $specificSymbol)
+    public function getSpecificSymbol(): ?int
+    {
+        return $this->specificSymbol;
+    }
+
+    public function setSpecificSymbol(?int $specificSymbol): self
     {
         $this->specificSymbol = $specificSymbol;
+
         return $this;
     }
 
-    /**
-     * @param int $constantSymbol
-     * @return QrPayment
-     */
-    public function setConstantSymbol(int $constantSymbol)
+    public function getConstantSymbol(): ?int
+    {
+        return $this->constantSymbol;
+    }
+
+    public function setConstantSymbol(?int $constantSymbol): self
     {
         $this->constantSymbol = $constantSymbol;
+
         return $this;
     }
 
-    /**
-     * @param string $currency
-     * @return QrPayment
-     */
-    public function setCurrency(string $currency)
+    public function getCurrency(): string
+    {
+        return $this->currency;
+    }
+
+    public function setCurrency(string $currency): self
     {
         $this->currency = $currency;
+
         return $this;
     }
 
-    /**
-     * @param string $comment
-     * @return QrPayment
-     */
-    public function setComment(string $comment)
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): self
     {
         $this->comment = $comment;
+
         return $this;
     }
 
-    /**
-     * @param int $repeat
-     * @return QrPayment
-     */
-    public function setRepeat(int $repeat)
+    public function getRepeat(): int
+    {
+        return $this->repeat;
+    }
+
+    public function setRepeat(int $repeat): self
     {
         $this->repeat = $repeat;
+
         return $this;
     }
 
-    /**
-     * @param string $internalId
-     * @return QrPayment
-     */
-    public function setInternalId(string $internalId)
+    public function getInternalId(): ?string
+    {
+        return $this->internalId;
+    }
+
+    public function setInternalId(?string $internalId): self
     {
         $this->internalId = $internalId;
+
         return $this;
     }
 
-    /**
-     * @param \DateTime|string $dueDate
-     * @return QrPayment
-     */
-    public function setDueDate($dueDate)
+    public function getDueDate(): DateTimeInterface
+    {
+        if ($this->dueDate === null) {
+            return new DateTimeImmutable();
+        }
+
+        return $this->dueDate;
+    }
+
+    public function setDueDate(?DateTimeInterface $dueDate): self
     {
         $this->dueDate = $dueDate;
+
         return $this;
     }
 
-    /**
-     * @param float $amount
-     * @return QrPayment
-     */
-    public function setAmount(float $amount)
+    public function getAmount(): float
+    {
+        return $this->amount;
+    }
+
+    public function setAmount(float $amount): self
     {
         $this->amount = $amount;
+
         return $this;
     }
 
-    /**
-     * @param string $country
-     * @return QrPayment
-     */
-    public function setCountry(string $country)
+    public function getIban(): IbanInterface
     {
-        $this->country = $country;
+        return $this->iban;
+    }
+
+    public function setIban(IbanInterface $iban): self
+    {
+        $this->iban = $iban;
+
         return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getPayeeName(): string
+    public function getPayeeName(): ?string
     {
         return $this->payeeName;
     }
 
-    /**
-     * @param string $payeeName
-     * @return QrPayment
-     */
-    public function setPayeeName(string $payeeName): QrPayment
+    public function setPayeeName(?string $payeeName): self
     {
         $this->payeeName = $payeeName;
+
         return $this;
+    }
+
+    /**
+     * Checks all properties for asterisk and throws exception if asterisk
+     * is found
+     *
+     * @throws InvalidValueException
+     */
+    private function checkProperties(): void
+    {
+        foreach (get_object_vars($this) as $property => $value) {
+            if (
+                (is_string($value) || (is_object($value) && method_exists($value, '__toString')))
+                && strpos((string) $value, '*') !== false
+            ) {
+                throw new InvalidValueException("Error: properties cannot contain asterisk (*). Property {$property} contains it.");
+            }
+        }
     }
 }
