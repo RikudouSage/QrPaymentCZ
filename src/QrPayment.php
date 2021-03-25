@@ -133,7 +133,7 @@ class QrPayment
 
         $qr = "SPD*1.0*";
         $qr .= sprintf("ACC:%s*", $this->getIBAN());
-        $qr .= sprintf("AM:%.2f*", $this->amount);
+        $qr .= sprintf("AM:%.2F*", $this->amount);
         $qr .= sprintf("CC:%s*", strtoupper($this->currency));
 
         if ($this->repeat) {
