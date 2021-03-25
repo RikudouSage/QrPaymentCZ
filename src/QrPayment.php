@@ -120,7 +120,7 @@ final class QrPayment implements QrPaymentInterface
 
         $qr = 'SPD*1.0*';
         $qr .= sprintf('ACC:%s*', $this->iban);
-        $qr .= sprintf('AM:%.2f*', $this->amount);
+        $qr .= sprintf('AM:%.2F*', $this->amount);
         $qr .= sprintf('CC:%s*', strtoupper($this->currency));
         $qr .= sprintf('X-PER:%d*', $this->repeat);
 
