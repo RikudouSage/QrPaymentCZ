@@ -86,4 +86,4 @@ jobs:
         with:
           fetch-depth: 0
       - name: Check for BC breaks
-        uses: docker://nyholm/roave-bc-check-ga:5.x
+        uses: docker://nyholm/roave-bc-check-ga
