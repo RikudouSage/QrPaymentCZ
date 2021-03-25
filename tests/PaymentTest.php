@@ -132,10 +132,18 @@ class PaymentTest extends TestCase
 
     public function testInvalidDateString()
     {
-        $this->expectException(QrPaymentException::class);
         $payment = $this->getInstance();
-
         $payment->setDueDate("24. 12. 2018");
+
+        $this->expectException(QrPaymentException::class);
+        $payment->getQrString();
+    }
+
+    public function testPropertiesWithAsterisk()
+    {
+        $payment = $this->getInstance();
+        $payment->setPayeeName('Some*Dude');
+        $this->expectException(QrPaymentException::class);
         $payment->getQrString();
     }
 
