@@ -8,13 +8,9 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-        with:
-          lfs: true
       - name: Create a Release
         id: create_release
         uses: actions/create-release@v1
