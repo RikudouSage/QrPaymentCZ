@@ -16,37 +16,52 @@ or [European Union](https://github.com/RikudouSage/QrPaymentEU) accounts.
 
 Via composer: `composer require rikudou/czqrpayment`
 
-Manually: clone the repository and include the `QrPaymentException.php`,
-`QrPaymentOptions.php` and `QrPayment.php` in your project.
-
 ## Usage
 
-You can create the Qr payment from account number and bank code or from IBAN.
+You can create the QR payment for an object implementing `\Rikudou\Iban\Iban\IbanInterface` or from account number
+and bank account (which is then converted to `\Rikudou\Iban\Iban\CzechIbanAdapter` object).
 
-From account number and bank code:
+> See [rikudou/iban](https://github.com/RikudouSage/IBAN) for description of the interface and classes which let
+> you for example validate the iban and/or the bank account number and bank code.
+
+From IbanInterface implementing classes:
 
 ```php
 <?php
 
-use rikudou\CzQrPayment\QrPayment;
+use Rikudou\CzQrPayment\QrPayment;
+use Rikudou\Iban\Iban\IBAN;
+use Rikudou\Iban\Iban\CzechIbanAdapter;
 
-$payment = new QrPayment(1325090010, 3030);
+// initialized with IBAN directly
+$payment = new QrPayment(new IBAN('CZ5530300000001325090010'));
+
+// initialized from Czech account number and bank code
+$payment = new QrPayment(new CzechIbanAdapter('1325090010', '3030'));
+
+// the IBAN classes don't use strict typing so you can also use implicit conversion like this
+// beware of bank codes that start with zero, those need to always be supplied as a string (like 0300)
+$payment = new QrPayment(new CzechIbanAdapter(1325090010, 3030));
 
 ```
 
-From IBAN:
+From account number and bank code directly:
 
 ```php
 <?php
 
-use rikudou\CzQrPayment\QrPayment;
+use Rikudou\CzQrPayment\QrPayment;
 
-$payment = QrPayment::fromIBAN("CZ5530300000001325090010");
+$payment = QrPayment::fromAccountAndBankCode('1325090010', '3030');
+
+// the class does not use strict typing so you can also use implicit conversion like this
+// beware of bank codes that start with zero, those need to always be supplied as a string (like 0300)
+$payment = QrPayment::fromAccountAndBankCode(1325090010, 3030);
 ```
 
 ### Setting payment details
 
-There are two approaches to setting payment details. You can set them in associative array or using the methods
+There are two approaches to setting payment details. You can set them in an associative array or using the methods
 provided in the class.
 
 **Using associative array**
@@ -54,10 +69,11 @@ provided in the class.
 ```php
 <?php
 
-use rikudou\CzQrPayment\QrPayment;
+use Rikudou\CzQrPayment\QrPayment;
 use Rikudou\CzQrPayment\Options\QrPaymentOptions;
+use Rikudou\Iban\Iban\CzechIbanAdapter;
 
-$payment = new QrPayment(1325090010, 3030, [
+$payment = new QrPayment(new CzechIbanAdapter('1325090010', '3030'), [
   QrPaymentOptions::VARIABLE_SYMBOL => 123456,
   QrPaymentOptions::AMOUNT => 100,
   QrPaymentOptions::CURRENCY => "CZK",
@@ -78,34 +94,35 @@ $payment->setOptions([
 
 ```php
 <?php
-use rikudou\CzQrPayment\QrPayment;
 
-$payment = new QrPayment(1325090010, 3030);
-$payment->setVariableSymbol(123456)->setAmount(100)->setCurrency("CZK")->setDueDate(date("Y-m-d", strtotime("+14 days")));
+use Rikudou\CzQrPayment\QrPayment;
+use Rikudou\Iban\Iban\CzechIbanAdapter;
+
+$payment = new QrPayment(new CzechIbanAdapter('1325090010', '3030'));
+$payment
+    ->setVariableSymbol(123456)
+    ->setAmount(100)
+    ->setCurrency("CZK")
+    ->setDueDate(new DateTimeImmutable('+14 days'));
 ```
 
 ## Exceptions
 
-The only exception thrown by this library is `rikudou\CzQrPayment\QrPaymentException`.
+Description of exceptions thrown:
 
-**Methods that can throw exception:**
+- `__construct()`
+    - `InvalidArgumentException` - if you provide options in constructor and any of those options does not exist
+    - `\Rikudou\CzQrPayment\Exception\InvalidValueException` - if any of the options contains an asterisk
+    - `TypeError` - if any of the values is not assignable to the properties after standard php conversions
+- `setOptions()` - same as constructor
+- `getQrString()`
+    - `\Rikudou\CzQrPayment\Exception\InvalidValueException` - if any of the options contains an asterisk or if the
+    iban is not valid
+- `getQrImage()`
+    - `\Rikudou\CzQrPayment\Exception\MissingLibraryException` - if the endroid/qr-code library is missing
 
-- `__construct()` - if you supply options array and any of the values contains asterisk (`*`)
-- `setOptions()` - if any of the values contains asterisk (`*`)
-- `getIBAN()` - if any property contains asterisk(`*`)
-- `getQrString()` - if any property contains asterisk(`*`) or if the date is not a valid date
-- `getQrImage()` - if any property contains asterisk(`*`) or if the date is not a valid date
-or if the `endroid\qrcode` is not loaded
-
-**Error codes**
-
-The `QrPaymentException` contains constants to help you debugging the reason for the exception throw.
-
-- `QrPaymentException::ERR_ASTERISK` - this code is thrown when any of the properties contains asterisk (`*`)
-- `QrPaymentException::ERR_DATE` - this code is thrown if the date is not a valid date
-- `QrPaymentException::ERR_MISSING_LIBRARY` - this code is thrown if you try to use `getQrImage()` method but don't have
-the `endroid\qrcode` library installed
-
+All of these exceptions (except `InvalidArgumentException` and `TypeError`) extend the base 
+`\Rikudou\CzQrPayment\Exception\QrPaymentException`.
 
 ## List of public methods
 
@@ -113,23 +130,22 @@ the `endroid\qrcode` library installed
 
 **Params**
 
-- `int|string $account` - the account number
-- `int|string $bank` - the bank code
-- `array $options` - the array with options (not required).
-The helper class `QrPaymentOptions` can be used for options names.
+- `\Rikudou\Iban\Iban\IbanInterface $iban` **required** - the IBAN for the payment
+- `array|null $options` - the array with options.  The helper class `QrPaymentOptions` can be used for options names.
 
 **Example**
 
 ```php
 <?php
-use rikudou\CzQrPayment\QrPayment;
+use Rikudou\CzQrPayment\QrPayment;
 use Rikudou\CzQrPayment\Options\QrPaymentOptions;
+use Rikudou\Iban\Iban\CzechIbanAdapter;
 
-$payment = new QrPayment(1325090010, 3030);
+$payment = new QrPayment(new CzechIbanAdapter('1325090010', '3030'));
 
 // or with options
 
-$payment = new QrPayment(1325090010, 3030, [
+$payment = new QrPayment(new CzechIbanAdapter('1325090010', '3030'), [
   QrPaymentOptions::AMOUNT => 100
 ]);
 ```
@@ -140,7 +156,7 @@ Sets the options, useful if you don't want to set them in constructor.
 
 **Params**
 
-- `array $options` - the same as the constructor param `$options`
+- `array $options` **required** - the same as the constructor param `$options`
 
 **Returns**
 
@@ -150,36 +166,35 @@ Returns itself, you can use this method for chaining.
 
 ```php
 <?php
-use rikudou\CzQrPayment\QrPayment;
+use Rikudou\CzQrPayment\QrPayment;
 use Rikudou\CzQrPayment\Options\QrPaymentOptions;
+use Rikudou\Iban\Iban\CzechIbanAdapter;
 
-$payment = new QrPayment(1325090010, 3030);
+$payment = new QrPayment(new CzechIbanAdapter('1325090010', '3030'));
 
 $payment->setOptions([
   QrPaymentOptions::AMOUNT => 100
 ]);
 ```
 
-### getIBAN()
+### getIban()
 
-Returns the IBAN, either from supplied IBAN or generated from account number and 
-bank code.
-
+Returns the iban.
 
 **Returns**
 
-`string`
+`\Rikudou\Iban\Iban\IbanInterface`
 
 **Example**
 
 ```php
 <?php
 
-use rikudou\CzQrPayment\QrPayment;
+use Rikudou\CzQrPayment\QrPayment;
+use Rikudou\Iban\Iban\CzechIbanAdapter;
 
-$payment = new QrPayment(1325090010, 3030);
-$myIBAN = $payment->getIBAN(); 
-// $myIBAN now holds CZ5530300000001325090010
+$payment = new QrPayment(new CzechIbanAdapter('1325090010', '3030'));
+$myIBAN = $payment->getIban(); 
 ```
 
 ### getQrString()
@@ -194,25 +209,28 @@ Returns the string that should be encoded in QR image.
 
 ```php
 <?php
-use rikudou\CzQrPayment\QrPayment;
+use Rikudou\CzQrPayment\QrPayment;
 use Rikudou\CzQrPayment\Options\QrPaymentOptions;
+use Rikudou\Iban\Iban\CzechIbanAdapter;
 
-$payment = new QrPayment(1325090010, 3030, [
+$payment = new QrPayment(new CzechIbanAdapter('1325090010', '3030'), [
   QrPaymentOptions::AMOUNT => 100,
   QrPaymentOptions::VARIABLE_SYMBOL => 1502,
-  QrPaymentOptions::DUE_DATE => date("Y-m-d", strtotime("+14 days"))
+  QrPaymentOptions::DUE_DATE => new DateTimeImmutable('+14 days'),
 ]);
 
-$qrString = $payment->getQrString(); // SPD*1.0*ACC:CZ5530300000001325090010*AM:100.00*CC:CZK*X-PER:7*X-VS:1502*DT:20170928
+$qrString = $payment->getQrString(); // SPD*1.0*ACC:CZ5530300000001325090010*AM:100.00*CC:CZK*X-PER:7*X-VS:1502*DT:20210413
 ```
 
-### static fromIBAN()
+### static fromAccountAndBankCode()
 
-Returns new instance of the payment object created from IBAN.
+Returns a new instance of the payment object created from the account and bank code.
+Is pretty much an alias to `new QrPayment(new CzechIbanAdapter())`.
 
 **Params**
 
-- `string $iban` - The IBAN of the account
+- `string $accountNumber` **required** - The account number
+- `string $bankCode` **required** - The bank code
 
 **Returns**
 
@@ -222,20 +240,15 @@ Returns itself, you can use this method for chaining.
 
 ```php
 <?php
-use rikudou\CzQrPayment\QrPayment;
+use Rikudou\CzQrPayment\QrPayment;
 
-$payment = QrPayment::fromIBAN("CZ5530300000001325090010");
+$payment = QrPayment::fromAccountAndBankCode('1325090010', '3030');
 // do all the other stuff
 ```
 
 ### getQrImage()
 
-Returns a Qr code via third-party library.
-
-**Params**
-
-- `bool $setPngHeader` - if true, this method calls `header()` function to set
-content type to image/png, defaults to false
+Returns a Qr code via suggested third-party library.
 
 **Returns**
 
@@ -246,15 +259,15 @@ content type to image/png, defaults to false
 ```php
 <?php
 
-use rikudou\CzQrPayment\QrPayment;
+use Rikudou\CzQrPayment\QrPayment;
 use Rikudou\CzQrPayment\Options\QrPaymentOptions;
 
-$payment = QrPayment::fromIBAN("CZ5530300000001325090010")->setOptions([
+$payment = QrPayment::fromAccountAndBankCode('1325090010', '3030')->setOptions([
   QrPaymentOptions::AMOUNT => 100
 ]);
 
-$payment->getQrImage(true) // sets the content-type and renders
-    ->writeString();
+header('Content-Type: image/png');
+echo $payment->getQrImage()->writeString();
 
 ```
 
@@ -262,22 +275,21 @@ $payment->getQrImage(true) // sets the content-type and renders
 
 This is a list of options you can set.
 
-- `int variableSymbol` - the variable symbol, has no default
-- `int specificSymbol` - the specific symbol, has no default
-- `int constantSymbol` - the constant symbol, has no default
-- `string currency` - three letter code for currency, defaults to `CZK`
-- `string comment` - the payment comment, has no default
-- `int repeat` - the count of days that the payment should be repeated if it fails,
-defaults to `7`
-- `string internalId` - internal id of the payment, has no default
-- `string|DateTime dueDate` - the due date for payment, should be an instance of
-`DateTime` class or a string that can be parsed by `strtotime()`, has no default
-- `float amount` - the amount for the payment, can't have more than 2 decimal places,
-has no default
-- `country` - two letter code for country, defaults to `CZ`
+- `int $variableSymbol` - the variable symbol, has no default
+- `int $specificSymbol` - the specific symbol, has no default
+- `int $constantSymbol` - the constant symbol, has no default
+- `string $currency` - [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217#Active_codes) code for currency, 
+  defaults to `CZK`
+- `string $comment` - the payment comment, has no default
+- `int $repeat` - the number of days that the payment should be repeated if it fails, defaults to `7`
+- `string $internalId` - internal id of the payment, has no default
+- `DateTimeInterface dueDate` - the due date for payment, has no default
+- `float $amount` - the amount for the payment, shouldn't have more than 2 decimal places, has no default
+- `country` - [ISO 3166-1 alpha-2 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
+  for country, defaults to `CZ`
 
-All of these options can be set using the `QrPaymentOptions` helper class as constants
-for constructor or `setOptions()` or as methods.
+All of these options can be set using the `QrPaymentOptions` helper class as constants for the constructor or
+`setOptions()` or as methods.
 
-For example, the `amount` can be set in array using the constant
-`QrPaymentOptions::AMOUNT` or using the method `setAmount()`.
+For example, the `amount` can be set in an array using the constant `QrPaymentOptions::AMOUNT` or using the
+method `setAmount()`.

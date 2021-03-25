@@ -8,7 +8,6 @@ use Endroid\QrCode\QrCode;
 use InvalidArgumentException;
 use Rikudou\CzQrPayment\Exception\InvalidValueException;
 use Rikudou\CzQrPayment\Exception\MissingLibraryException;
-use Rikudou\CzQrPayment\Exception\QrPaymentException;
 use Rikudou\Iban\Iban\CzechIbanAdapter;
 use Rikudou\Iban\Iban\IbanInterface;
 use Rikudou\QrPayment\QrPaymentInterface;
@@ -73,6 +72,9 @@ final class QrPayment implements QrPaymentInterface
     /**
      * @param IbanInterface            $iban
      * @param array<string,mixed>|null $options
+     *
+     * @throws InvalidValueException
+     * @throws InvalidArgumentException
      */
     public function __construct(IbanInterface $iban, ?array $options = null)
     {
@@ -85,7 +87,8 @@ final class QrPayment implements QrPaymentInterface
     /**
      * @param array<string,mixed> $options
      *
-     * @throws QrPaymentException
+     * @throws InvalidValueException
+     * @throws InvalidArgumentException
      *
      * @return $this
      */
@@ -108,7 +111,7 @@ final class QrPayment implements QrPaymentInterface
     }
 
     /**
-     * @throws QrPaymentException
+     * @throws InvalidValueException
      */
     public function getQrString(): string
     {
@@ -303,7 +306,7 @@ final class QrPayment implements QrPaymentInterface
      * Checks all properties for asterisk and throws exception if asterisk
      * is found
      *
-     * @throws QrPaymentException
+     * @throws InvalidValueException
      */
     private function checkProperties(): void
     {
