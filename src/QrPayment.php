@@ -97,11 +97,10 @@ final class QrPayment implements QrPaymentInterface
     {
         foreach ($options as $key => $value) {
             $method = sprintf('set%s', ucfirst($key));
-            if (method_exists($this, $method)) {
-                Closure::fromCallable([$this, $method])->call($this, $value);
-            } else {
+            if (!method_exists($this, $method)) {
                 throw new InvalidArgumentException("The property '{$key}' is not valid");
             }
+            Closure::fromCallable([$this, $method])->call($this, $value);
         }
 
         $this->checkProperties();
@@ -120,35 +119,35 @@ final class QrPayment implements QrPaymentInterface
             throw new InvalidValueException('The IBAN is not a valid IBAN');
         }
 
-        $qr = 'SPD*1.0*';
-        $qr .= sprintf('ACC:%s*', $this->iban);
-        $qr .= sprintf('AM:%.2F*', $this->amount);
-        $qr .= sprintf('CC:%s*', strtoupper($this->currency));
-        $qr .= sprintf('X-PER:%d*', $this->repeat);
+        $qrString = 'SPD*1.0*';
+        $qrString .= sprintf('ACC:%s*', $this->iban);
+        $qrString .= sprintf('AM:%.2F*', $this->amount);
+        $qrString .= sprintf('CC:%s*', strtoupper($this->currency));
+        $qrString .= sprintf('X-PER:%d*', $this->repeat);
 
         if ($this->comment !== null) {
-            $qr .= sprintf('MSG:%.60s*', $this->comment);
+            $qrString .= sprintf('MSG:%.60s*', $this->comment);
         }
         if ($this->internalId !== null) {
-            $qr .= sprintf('X-ID:%s*', $this->internalId);
+            $qrString .= sprintf('X-ID:%s*', $this->internalId);
         }
         if ($this->variableSymbol !== null) {
-            $qr .= sprintf('X-VS:%d*', $this->variableSymbol);
+            $qrString .= sprintf('X-VS:%d*', $this->variableSymbol);
         }
         if ($this->specificSymbol !== null) {
-            $qr .= sprintf('X-SS:%d*', $this->specificSymbol);
+            $qrString .= sprintf('X-SS:%d*', $this->specificSymbol);
         }
         if ($this->constantSymbol !== null) {
-            $qr .= sprintf('X-KS:%d*', $this->constantSymbol);
+            $qrString .= sprintf('X-KS:%d*', $this->constantSymbol);
         }
         if ($this->payeeName !== null) {
-            $qr .= sprintf('RN:%s*', $this->payeeName);
+            $qrString .= sprintf('RN:%s*', $this->payeeName);
         }
         if ($this->dueDate !== null) {
-            $qr .= sprintf('DT:%s*', $this->dueDate->format('Ymd'));
+            $qrString .= sprintf('DT:%s*', $this->dueDate->format('Ymd'));
         }
 
-        return substr($qr, 0, -1);
+        return substr($qrString, 0, -1);
     }
 
     public function getQrImage(): QrCode
