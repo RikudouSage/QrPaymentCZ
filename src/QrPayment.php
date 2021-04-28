@@ -2,6 +2,7 @@
 
 namespace Rikudou\CzQrPayment;
 
+use Closure;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Endroid\QrCode\QrCode;
@@ -97,9 +98,7 @@ final class QrPayment implements QrPaymentInterface
         foreach ($options as $key => $value) {
             $method = sprintf('set%s', ucfirst($key));
             if (method_exists($this, $method)) {
-                /** @var callable $callable */
-                $callable = [$this, $method];
-                call_user_func($callable, $value);
+                Closure::fromCallable([$this, $method])->call($this, $value);
             } else {
                 throw new InvalidArgumentException("The property '{$key}' is not valid");
             }
