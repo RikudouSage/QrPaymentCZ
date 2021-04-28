@@ -1,6 +1,7 @@
 # QR code payment (CZ)
 
 [![Tests](https://github.com/RikudouSage/QrPaymentCZ/workflows/Tests/badge.svg)](https://github.com/RikudouSage/QrPaymentCZ/actions?query=workflow%3ATests)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/f87673759eb147998d1e8550af2a8b24)](https://www.codacy.com/gh/RikudouSage/QrPaymentCZ/dashboard)
 [![Coverage Status](https://img.shields.io/coveralls/github/RikudouSage/QrPaymentCZ/master.svg)](https://coveralls.io/github/RikudouSage/QrPaymentCZ?branch=master)
 [![Download](https://img.shields.io/packagist/dt/rikudou/czqrpayment.svg)](https://packagist.org/packages/rikudou/czqrpayment)
 
