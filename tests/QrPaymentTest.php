@@ -287,6 +287,9 @@ final class QrPaymentTest extends TestCase
         $this->instance->getQrString();
     }
 
+    /**
+     * @see https://github.com/RikudouSage/QrPaymentCZ/issues/35
+     */
     public function testIntegerOverflow(): void
     {
         $qrString = QrPayment::fromAccountAndBankCode('2901972682', '0100')->getQrString();
