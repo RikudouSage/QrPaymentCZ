@@ -81,3 +81,18 @@ jobs:
         run: bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r build/logs/clover.xml
         env:
           CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+  tests-32bit:
+    name: Test 32 bit php
+    runs-on: ubuntu-latest
+    container: shivammathur/node:latest-i386
+    steps:
+      - name: Install PHP
+        run: |
+          spc -U
+          spc --php-version "7.4" --coverage "xdebug"
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Install Dependencies
+        run: composer install
+      - name: Tests
+        run: composer phpunit
