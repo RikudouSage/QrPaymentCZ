@@ -93,7 +93,7 @@ jobs:
       - name: Checkout Code
         run: |
           git clone $GITHUB_SERVER_URL/$GITHUB_REPOSITORY .
-          git checkout $GITHUB_SHA
+          git checkout $GITHUB_HEAD_REF
 #      - name: Install Dependencies
 #        run: composer install
 #      - name: Tests
