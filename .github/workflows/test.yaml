@@ -91,7 +91,9 @@ jobs:
           spc -U
           spc --php-version "7.4" --coverage "xdebug"
       - name: Checkout Code
-        uses: actions/checkout@v2
+        run: |
+          git clone $GITHUB_SERVER_URL/$GITHUB_REPOSITORY .
+          git checkout $GITHUB_SHA
 #      - name: Install Dependencies
 #        run: composer install
 #      - name: Tests
