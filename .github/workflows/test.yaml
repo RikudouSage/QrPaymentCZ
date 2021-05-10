@@ -92,6 +92,7 @@ jobs:
           spc --php-version "7.4" --coverage "xdebug"
       - name: Checkout Code
         run: |
+          echo $GITHUB_HEAD_REF
           git clone $GITHUB_SERVER_URL/$GITHUB_REPOSITORY .
           git checkout $GITHUB_HEAD_REF
 #      - name: Install Dependencies
