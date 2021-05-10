@@ -90,9 +90,9 @@ jobs:
         run: |
           spc -U
           spc --php-version "7.4" --coverage "xdebug"
-      - name: Checkout Code
-        uses: actions/checkout@v2
-      - name: Install Dependencies
-        run: composer install
-      - name: Tests
-        run: composer phpunit
+#      - name: Checkout Code
+#        uses: actions/checkout@v2
+#      - name: Install Dependencies
+#        run: composer install
+#      - name: Tests
+#        run: composer phpunit
