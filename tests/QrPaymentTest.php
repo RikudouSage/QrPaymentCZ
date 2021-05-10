@@ -287,6 +287,15 @@ final class QrPaymentTest extends TestCase
         $this->instance->getQrString();
     }
 
+    /**
+     * @see https://github.com/RikudouSage/QrPaymentCZ/issues/35
+     */
+    public function testIntegerOverflow(): void
+    {
+        $qrString = QrPayment::fromAccountAndBankCode('2901972682', '0100')->getQrString();
+        self::assertEquals('SPD*1.0*ACC:CZ1401000000002901972682*AM:0.00*CC:CZK*X-PER:7', $qrString);
+    }
+
     private function getIban(): IBAN
     {
         return new IBAN('CZ5530300000001325090010');
