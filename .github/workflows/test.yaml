@@ -92,9 +92,8 @@ jobs:
           spc --php-version "7.4" --coverage "xdebug"
       - name: Checkout Code
         run: |
-          echo $([ -z ${GITHUB_HEAD_REF} ] && echo $GITHUB_HEAD_REF || echo $GITHUB_SHA)
           git clone $GITHUB_SERVER_URL/$GITHUB_REPOSITORY .
-          git checkout $([ -z ${GITHUB_HEAD_REF} ] && echo $GITHUB_HEAD_REF || echo $GITHUB_SHA)
+          [ -z ${GITHUB_HEAD_REF} ] && git checkout $GITHUB_HEAD_REF || git checkout $GITHUB_SHA
       - name: Install Dependencies
         run: composer install
       - name: Tests
