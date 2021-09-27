@@ -34,8 +34,7 @@
     "php-coveralls/php-coveralls": "^2.1",
     "endroid/qr-code": "^3.2",
     "friendsofphp/php-cs-fixer": "^2.18",
-    "phpstan/phpstan": "^0.12.82",
-    "jetbrains/phpstorm-attributes": "^1.0"
+    "phpstan/phpstan": "^0.12.82"
   },
   "autoload-dev": {
     "psr-4": {
