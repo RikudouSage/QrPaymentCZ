@@ -164,8 +164,10 @@ final class QrPayment implements QrPaymentInterface
             if (!$code instanceof EndroidQrCode3) {
                 throw new MissingLibraryException('Error: library endroid/qr-code is not loaded or is not a 3.x version. For newer versions please use method getQrCode()');
             }
+        // @codeCoverageIgnoreStart
         } catch (NoProviderFoundException $e) {
             throw new MissingLibraryException('Error: library endroid/qr-code is not loaded.');
+            // @codeCoverageIgnoreEnd
         }
 
         $raw = $code->getRawObject();
