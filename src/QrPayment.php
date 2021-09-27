@@ -14,7 +14,7 @@ use Rikudou\Iban\Iban\CzechIbanAdapter;
 use Rikudou\Iban\Iban\IbanInterface;
 use Rikudou\QrPayment\QrPaymentInterface;
 use Rikudou\QrPaymentQrCodeProvider\EndroidQrCode3;
-use Rikudou\QrPaymentQrCodeProvider\Exception\InvalidTraitTargetException;
+use Rikudou\QrPaymentQrCodeProvider\Exception\NoProviderFoundException;
 use Rikudou\QrPaymentQrCodeProvider\GetQrCodeTrait;
 
 final class QrPayment implements QrPaymentInterface
@@ -164,7 +164,7 @@ final class QrPayment implements QrPaymentInterface
             if (!$code instanceof EndroidQrCode3) {
                 throw new MissingLibraryException('Error: library endroid/qr-code is not loaded or is not a 3.x version. For newer versions please use method getQrCode()');
             }
-        } catch (InvalidTraitTargetException $e) {
+        } catch (NoProviderFoundException $e) {
             throw new MissingLibraryException('Error: library endroid/qr-code is not loaded.');
         }
 
