@@ -14,6 +14,11 @@ use Rikudou\CzQrPayment\QrPayment;
 use Rikudou\Iban\Iban\IBAN;
 use Rikudou\Iban\Iban\IbanInterface;
 use Rikudou\Iban\Validator\ValidatorInterface;
+use Rikudou\QrPaymentQrCodeProvider\EndroidQrCode3;
+use Rikudou\QrPaymentQrCodeProvider\EndroidQrCode3Provider;
+use Rikudou\QrPaymentQrCodeProvider\EndroidQrCode4Provider;
+use Rikudou\QrPaymentQrCodeProvider\Exception\NoProviderFoundException;
+use Rikudou\QrPaymentQrCodeProvider\QrCodeProviderLocator;
 
 final class QrPaymentTest extends TestCase
 {
@@ -90,17 +95,6 @@ final class QrPaymentTest extends TestCase
         $this->instance->setOptions([
             'test' => 'test',
         ]);
-    }
-
-    public function testGetQrImageFailure()
-    {
-        try {
-            $this->expectException(get_class(new MissingLibraryException()));
-            $this->unregisterAutoloader();
-            $this->instance->getQrImage();
-        } finally {
-            $this->reregisterAutoloader();
-        }
     }
 
     public function testGetQrImage()
