@@ -1,5 +1,6 @@
 parameters:
   reportUnmatchedIgnoredErrors: false
+  treatPhpDocTypesAsCertain: false
   ignoreErrors:
     - '#expects callable.*?, array.*? given#'
     - '#Attribute class JetBrains.+? does not exist#'
