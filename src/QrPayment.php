@@ -16,23 +16,24 @@ use Rikudou\QrPayment\QrPaymentInterface;
 use Rikudou\QrPaymentQrCodeProvider\EndroidQrCode3;
 use Rikudou\QrPaymentQrCodeProvider\Exception\NoProviderFoundException;
 use Rikudou\QrPaymentQrCodeProvider\GetQrCodeTrait;
+use TypeError;
 
 final class QrPayment implements QrPaymentInterface
 {
     use GetQrCodeTrait;
 
     /**
-     * @var int|null
+     * @var int|string|null
      */
     private $variableSymbol = null;
 
     /**
-     * @var int|null
+     * @var int|string|null
      */
     private $specificSymbol = null;
 
     /**
-     * @var int|null
+     * @var int|string|null
      */
     private $constantSymbol = null;
 
@@ -181,37 +182,70 @@ final class QrPayment implements QrPaymentInterface
         return new self(new CzechIbanAdapter($accountNumber, $bankCode));
     }
 
-    public function getVariableSymbol(): ?int
+    /**
+     * @return int|string|null
+     */
+    public function getVariableSymbol()
     {
         return $this->variableSymbol;
     }
 
-    public function setVariableSymbol(?int $variableSymbol): self
+    /**
+     * @param int|string|null $variableSymbol
+     *
+     * @return $this
+     */
+    public function setVariableSymbol($variableSymbol): self
     {
+        if (!is_string($variableSymbol) && !is_int($variableSymbol) && $variableSymbol !== null) {
+            throw new TypeError(sprintf('Variable symbol must be an integer, string or null, %s given', gettype($variableSymbol)));
+        }
         $this->variableSymbol = $variableSymbol;
 
         return $this;
     }
 
-    public function getSpecificSymbol(): ?int
+    /**
+     * @return int|string|null
+     */
+    public function getSpecificSymbol()
     {
         return $this->specificSymbol;
     }
 
-    public function setSpecificSymbol(?int $specificSymbol): self
+    /**
+     * @param int|string|null $specificSymbol
+     *
+     * @return $this
+     */
+    public function setSpecificSymbol($specificSymbol): self
     {
+        if (!is_string($specificSymbol) && !is_int($specificSymbol) && $specificSymbol !== null) {
+            throw new TypeError(sprintf('Specific symbol must be an integer, string or null, %s given', gettype($specificSymbol)));
+        }
         $this->specificSymbol = $specificSymbol;
 
         return $this;
     }
 
-    public function getConstantSymbol(): ?int
+    /**
+     * @return int|string|null
+     */
+    public function getConstantSymbol()
     {
         return $this->constantSymbol;
     }
 
-    public function setConstantSymbol(?int $constantSymbol): self
+    /**
+     * @param int|string|null $constantSymbol
+     *
+     * @return $this
+     */
+    public function setConstantSymbol($constantSymbol): self
     {
+        if (!is_string($constantSymbol) && !is_int($constantSymbol) && $constantSymbol !== null) {
+            throw new TypeError(sprintf('Constant symbol must be an integer, string or null, %s given', gettype($constantSymbol)));
+        }
         $this->constantSymbol = $constantSymbol;
 
         return $this;
