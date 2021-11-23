@@ -139,13 +139,13 @@ final class QrPayment implements QrPaymentInterface
             $qrString .= sprintf('X-ID:%s*', $this->internalId);
         }
         if ($this->variableSymbol !== null) {
-            $qrString .= sprintf('X-VS:%d*', $this->variableSymbol);
+            $qrString .= sprintf('X-VS:%s*', $this->variableSymbol);
         }
         if ($this->specificSymbol !== null) {
-            $qrString .= sprintf('X-SS:%d*', $this->specificSymbol);
+            $qrString .= sprintf('X-SS:%s*', $this->specificSymbol);
         }
         if ($this->constantSymbol !== null) {
-            $qrString .= sprintf('X-KS:%d*', $this->constantSymbol);
+            $qrString .= sprintf('X-KS:%s*', $this->constantSymbol);
         }
         if ($this->payeeName !== null) {
             $qrString .= sprintf('RN:%s*', $this->payeeName);
