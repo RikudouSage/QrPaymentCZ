@@ -128,6 +128,10 @@ final class QrPaymentTest extends TestCase
         self::assertEquals('789', $this->instance->getVariableSymbol());
         self::assertEquals("{$this->getDefaultEmptyString()}*X-VS:789", $this->instance->getQrString());
 
+        $this->instance->setVariableSymbol('001');
+        self::assertEquals('001', $this->instance->getVariableSymbol());
+        self::assertEquals("{$this->getDefaultEmptyString()}*X-VS:001", $this->instance->getQrString());
+
         $this->expectException(TypeError::class);
         $this->instance->setVariableSymbol([]);
     }
@@ -145,6 +149,10 @@ final class QrPaymentTest extends TestCase
         self::assertEquals('7890', $this->instance->getSpecificSymbol());
         self::assertEquals("{$this->getDefaultEmptyString()}*X-SS:7890", $this->instance->getQrString());
 
+        $this->instance->setSpecificSymbol('001');
+        self::assertEquals('001', $this->instance->getSpecificSymbol());
+        self::assertEquals("{$this->getDefaultEmptyString()}*X-SS:001", $this->instance->getQrString());
+
         $this->expectException(TypeError::class);
         $this->instance->setSpecificSymbol([]);
     }
@@ -161,6 +169,10 @@ final class QrPaymentTest extends TestCase
         $this->instance->setConstantSymbol('741');
         self::assertEquals('741', $this->instance->getConstantSymbol());
         self::assertEquals("{$this->getDefaultEmptyString()}*X-KS:741", $this->instance->getQrString());
+
+        $this->instance->setConstantSymbol('001');
+        self::assertEquals('001', $this->instance->getConstantSymbol());
+        self::assertEquals("{$this->getDefaultEmptyString()}*X-KS:001", $this->instance->getQrString());
 
         $this->expectException(TypeError::class);
         $this->instance->setConstantSymbol([]);
