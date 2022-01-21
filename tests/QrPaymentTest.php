@@ -315,6 +315,18 @@ final class QrPaymentTest extends TestCase
         $this->instance->getQrString();
     }
 
+    public function testInstantPayment()
+    {
+        self::assertFalse(strpos($this->instance->getQrString(), 'PT:IP'));
+        self::assertFalse($this->instance->isInstantPayment());
+        $this->instance->setInstantPayment(true);
+        self::assertTrue($this->instance->isInstantPayment());
+        self::assertEquals($this->instance->getQrString(), "SPD*1.0*ACC:{$this->getIban()}*AM:0.00*CC:CZK*X-PER:7*PT:IP");
+        $this->instance->setInstantPayment(false);
+        self::assertFalse($this->instance->isInstantPayment());
+        self::assertFalse(strpos($this->instance->getQrString(), 'PT:IP'));
+    }
+
     /**
      * @see https://github.com/RikudouSage/QrPaymentCZ/issues/35
      */
