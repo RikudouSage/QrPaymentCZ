@@ -78,6 +78,11 @@ final class QrPayment implements QrPaymentInterface
     private $payeeName = null;
 
     /**
+     * @var bool
+     */
+    private $instantPayment = false;
+
+    /**
      * @param IbanInterface            $iban
      * @param array<string,mixed>|null $options
      *
@@ -152,6 +157,9 @@ final class QrPayment implements QrPaymentInterface
         }
         if ($this->dueDate !== null) {
             $qrString .= sprintf('DT:%s*', $this->dueDate->format('Ymd'));
+        }
+        if ($this->instantPayment) {
+            $qrString .= 'PT:IP*';
         }
 
         return substr($qrString, 0, -1);
@@ -347,6 +355,18 @@ final class QrPayment implements QrPaymentInterface
     public function setPayeeName(?string $payeeName): self
     {
         $this->payeeName = $payeeName;
+
+        return $this;
+    }
+
+    public function isInstantPayment(): bool
+    {
+        return $this->instantPayment;
+    }
+
+    public function setInstantPayment(bool $isInstant): self
+    {
+        $this->instantPayment = $isInstant;
 
         return $this;
     }

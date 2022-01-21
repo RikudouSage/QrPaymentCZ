@@ -87,7 +87,8 @@ $payment->setOptions([
   QrPaymentOptions::VARIABLE_SYMBOL => 123456,
   QrPaymentOptions::AMOUNT => 100,
   QrPaymentOptions::CURRENCY => "CZK",
-  QrPaymentOptions::DUE_DATE => date("Y-m-d", strtotime("+14 days"))
+  QrPaymentOptions::DUE_DATE => date("Y-m-d", strtotime("+14 days")),
+  QrPaymentOptions::INSTANT_PAYMENT => true,
 ]);
 ```
 
@@ -104,7 +105,8 @@ $payment
     ->setVariableSymbol(123456)
     ->setAmount(100)
     ->setCurrency("CZK")
-    ->setDueDate(new DateTimeImmutable('+14 days'));
+    ->setDueDate(new DateTimeImmutable('+14 days'))
+    ->setInstantPayment(true);
 ```
 
 ## Exceptions
@@ -325,6 +327,8 @@ This is a list of options you can set.
 - `float $amount` - the amount for the payment, shouldn't have more than 2 decimal places, has no default
 - `string $country` - [ISO 3166-1 alpha-2 code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
   for country, defaults to `CZ`
+- `bool $instantPayment` - whether the payment should be made as instant instead of standard payment
+  (depends on bank support)
 
 All of these options can be set using the `QrPaymentOptions` helper class as constants for the constructor or
 `setOptions()` or as methods.

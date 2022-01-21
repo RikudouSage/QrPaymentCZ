@@ -14,4 +14,5 @@ final class QrPaymentOptions
     public const DUE_DATE = 'dueDate';
     public const AMOUNT = 'amount';
     public const PAYEE_NAME = 'payeeName';
+    public const INSTANT_PAYMENT = 'instantPayment';
 }
