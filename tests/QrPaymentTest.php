@@ -78,9 +78,10 @@ final class QrPaymentTest extends TestCase
             QrPaymentOptions::DUE_DATE => new DateTimeImmutable('2021-01-31'),
             QrPaymentOptions::AMOUNT => 500,
             QrPaymentOptions::PAYEE_NAME => 'Random Dude',
+            QrPaymentOptions::INSTANT_PAYMENT => true,
         ]);
         self::assertEquals(
-            'SPD*1.0*ACC:CZ5530300000001325090010*AM:500.00*CC:EUR*X-PER:3*MSG:SOME TEXT*X-ID:123456*X-VS:123*X-SS:456*X-KS:789*RN:Random Dude*DT:20210131',
+            'SPD*1.0*ACC:CZ5530300000001325090010*AM:500.00*CC:EUR*X-PER:3*MSG:SOME TEXT*X-ID:123456*X-VS:123*X-SS:456*X-KS:789*RN:Random Dude*DT:20210131*PT:IP',
             $this->instance->getQrString()
         );
 
