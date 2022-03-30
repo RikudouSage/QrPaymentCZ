@@ -8,8 +8,7 @@
 A simple library to generate QR payment code for Czech Republic.
 All methods are documented in source code.
 
-> See also QR code payment generator for [Slovak](https://github.com/RikudouSage/QrPaymentSK)
-or [European Union](https://github.com/RikudouSage/QrPaymentEU) accounts.
+> See also QR code payment generator for [Slovak](https://github.com/RikudouSage/QrPaymentSK), [Hungarian](https://github.com/hubipe/QrPaymentHU) or [European Union](https://github.com/RikudouSage/QrPaymentEU) accounts.
 
 > Using Symfony? See the [QR Payment Bundle](https://github.com/RikudouSage/QrPaymentBundle).
 
