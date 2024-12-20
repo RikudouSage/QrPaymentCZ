@@ -45,5 +45,10 @@
     "fixer": "php-cs-fixer fix src --verbose",
     "phpstan": "phpstan analyse --level=max src",
     "phpunit": "phpunit"
+  },
+  "config": {
+    "allow-plugins": {
+      "ocramius/package-versions": true
+    }
   }
 }
